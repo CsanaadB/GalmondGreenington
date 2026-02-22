@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "slopblock",
+  "version": "0.0.1",
+  "description": "A whitelist-based extension that hides content on YouTube.",
+  "content_scripts": [
+    {
+      "matches": ["file:///*"],
+      "css": ["style.css"]
+    }
+  ]
+}
