@@ -6,5 +6,5 @@ YouTube first, other platforms later.
 
 ## TODO
 
-- [ ] Hide all YouTube videos, resulting in an empty feed
+- [x] Hide all YouTube videos, resulting in an empty feed
 - [ ] Find a new name for this project because slopblock is already taken
