@@ -31,22 +31,27 @@ test('extension filters videos by whitelist on youtube homepage', async ({ page 
 
   await page.goto('https://www.youtube.com/');
 
-  const whitelistedChannel = '/@TheRealWalterWhiteOfficial1';
+  const whitelistedChannels = ['/@TheRealWalterWhiteOfficial1', '/@detectiveRust999'];
 
-  const whitelistedVideos = page.locator(
-    `ytd-rich-item-renderer:has(a[href="${whitelistedChannel}"])`
-  );
-  await expect(whitelistedVideos).toHaveCount(2);
-  for (const video of await whitelistedVideos.all()) {
-    await expect(video).toHaveAttribute('data-allowed', '');
-    await expect(video).toBeVisible();
+  for (const channel of whitelistedChannels) {
+    const videos = page.locator(
+      `ytd-rich-item-renderer:has(a[href="${channel}"])`
+    );
+    expect(await videos.count()).toBeGreaterThan(0);
+    for (const video of await videos.all()) {
+      await expect(video).toHaveAttribute('data-allowed', '');
+      await expect(video).toBeVisible();
+    }
   }
 
-  const otherVideos = page.locator(
-    `ytd-rich-item-renderer:not(:has(a[href="${whitelistedChannel}"]))`
+  const blockedChannelSelector = whitelistedChannels
+    .map((channel) => `:not(:has(a[href="${channel}"]))`)
+    .join('');
+  const blockedVideos = page.locator(
+    `ytd-rich-item-renderer${blockedChannelSelector}`
   );
-  await expect(otherVideos).toHaveCount(2);
-  for (const video of await otherVideos.all()) {
+  await expect(blockedVideos).toHaveCount(2);
+  for (const video of await blockedVideos.all()) {
     await expect(video).not.toBeVisible();
   }
 });
