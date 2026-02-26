@@ -1,3 +1,7 @@
 ytd-rich-item-renderer {
   display: none !important;
 }
+
+ytd-rich-item-renderer[data-allowed] {
+  display: block !important;
+}
