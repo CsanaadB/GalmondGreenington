@@ -4,7 +4,7 @@
   "description": "A whitelist-based browser extension that hides AI slop from content platforms.",
   "main": "index.js",
   "scripts": {
-    "build": "rm --force extension/*.js && esbuild src/index.ts --bundle --outfile=extension/index.js",
+    "build": "node build.js",
     "test:unit": "npx vitest run",
     "test:e2e": "npm run build && npx playwright test",
     "test": "npm run test:unit && npm run test:e2e",

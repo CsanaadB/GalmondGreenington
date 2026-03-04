@@ -60,7 +60,7 @@ test('extension filters videos by whitelist on youtube homepage', async ({ page 
   }
 });
 
-const videoTemplate = (channel: string) => `
+const videoTemplate = (channel: string): string => `
   <ytd-rich-item-renderer class="style-scope ytd-rich-grid-renderer">
     <div id="content" class="style-scope ytd-rich-item-renderer">
       <yt-lockup-view-model>
