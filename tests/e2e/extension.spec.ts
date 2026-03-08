@@ -178,3 +178,34 @@ test('extension filters infinite scroll videos after late-loading #contents', as
   await expect(scrolledBlocked.first()).not.toHaveAttribute('data-allowed', '');
   await expect(scrolledBlocked.first()).not.toBeVisible();
 });
+
+test('extension hides all search result videos', async ({ page }) => {
+  const fixture = path.resolve('tests/e2e/fixtures/youtube-search.html');
+  const html = await fs.readFile(fixture, 'utf-8');
+
+  await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
+    await route.fulfill({ body: html, contentType: 'text/html' });
+  });
+
+  await page.goto('https://www.youtube.com/results?search_query=test');
+
+  const video = page.locator('ytd-video-renderer').first();
+  await expect(video).not.toBeVisible();
+});
+
+// test('extension filters videos by whitelist on youtube search results', async ({ page }) => {
+//   const fixture = path.resolve('tests/e2e/fixtures/youtube-search.html');
+//   const html = await fs.readFile(fixture, 'utf-8');
+//
+//   await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
+//     await route.fulfill({ body: html, contentType: 'text/html' });
+//   });
+//
+//   await page.goto('https://www.youtube.com/results?search_query=test');
+//
+//   const videos = page.locator('ytd-video-renderer:has(a[href="/@TheRealWalterWhiteOfficial1"])');
+//   expect(await videos.count()).toBeGreaterThan(0);
+//   for (const video of await videos.all()) {
+//     await expect(video).toHaveAttribute('data-allowed', '');
+//   }
+// });

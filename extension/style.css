@@ -1,4 +1,5 @@
-ytd-rich-item-renderer {
+ytd-rich-item-renderer,
+ytd-video-renderer {
   display: none !important;
 }
 
