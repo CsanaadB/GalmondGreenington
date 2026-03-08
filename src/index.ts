@@ -10,7 +10,7 @@ import {
   const response = await fetch(chrome.runtime.getURL('whitelist.txt'));
   const whitelist = parseWhitelist(await response.text());
 
-  filterVideos(document.querySelectorAll('ytd-rich-item-renderer'), whitelist);
+  filterVideos(document.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'), whitelist);
 
   const container = document.querySelector('#contents');
 
@@ -18,7 +18,7 @@ import {
     observeNewVideos(container, whitelist);
   } else {
     const contents = await waitForContents();
-    filterVideos(contents.querySelectorAll('ytd-rich-item-renderer'), whitelist);
+    filterVideos(contents.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'), whitelist);
     observeNewVideos(contents, whitelist);
   }
 })();

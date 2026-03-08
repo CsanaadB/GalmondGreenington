@@ -23,11 +23,12 @@ describe('filterVideos', () => {
 
 describe('findContentsElement', () => {
   it('returns the #contents element from a list of nodes', () => {
+    const richGrid = document.createElement('ytd-rich-grid-renderer');
     const contents = document.createElement('div');
     contents.id = 'contents';
-    const nodes: Node[] = [contents];
+    richGrid.appendChild(contents);
 
-    expect(findContentsElement(nodes)).toBe(contents);
+    expect(findContentsElement([richGrid])).toBe(contents);
   });
 
   it('returns undefined when #contents is not in the list', () => {
