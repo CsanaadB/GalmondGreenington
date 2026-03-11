@@ -121,7 +121,7 @@ test('extension filters dynamically added videos by whitelist', async ({ page })
   await expect(blockedVideo.first()).not.toBeVisible();
 });
 
-test('extension filters videos even when #contents does not exist until after page load', async ({ page }) => {
+test('extension filters homepage videos when #contents does not exist until after page load', async ({ page }) => {
   await page.route('https://www.youtube.com/', async (route) => {
     await route.fulfill({ body: '<html><body></body></html>', contentType: 'text/html' });
   });
@@ -191,6 +191,66 @@ test('extension hides all search result videos', async ({ page }) => {
 
   const video = page.locator('ytd-video-renderer').first();
   await expect(video).not.toBeVisible();
+});
+
+test('extension filters dynamically added videos on search results', async ({ page }) => {
+  await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
+    await route.fulfill({
+      body: `<html><body>
+        <div id="contents">
+          <ytd-item-section-renderer>
+            <div id="contents"></div>
+          </ytd-item-section-renderer>
+        </div>
+      </body></html>`,
+      contentType: 'text/html',
+    });
+  });
+
+  await page.goto('https://www.youtube.com/results?search_query=test');
+
+  await page.locator('ytd-item-section-renderer #contents').evaluate((el, videoHtml) => {
+    el.insertAdjacentHTML('beforeend', videoHtml);
+  }, `<ytd-video-renderer>
+    <div id="channel-info">
+      <a href="/@TheRealWalterWhiteOfficial1"></a>
+    </div>
+  </ytd-video-renderer>`);
+
+  const injectedVideo = page.locator('ytd-video-renderer');
+  await expect(injectedVideo).toHaveAttribute('data-allowed', '');
+});
+
+test('extension filters search videos when #contents does not exist until after page load', async ({ page }) => {
+  await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
+    await route.fulfill({ body: '<html><body></body></html>', contentType: 'text/html' });
+  });
+
+  await page.goto('https://www.youtube.com/results?search_query=test');
+
+  // youtube inserts #contents with the initial batch of videos already inside,
+  // so videos must be present before appending to DOM
+  await page.evaluate(() => {
+    const outerContents = document.createElement('div');
+    outerContents.id = 'contents';
+
+    const itemSectionRenderer = document.createElement('ytd-item-section-renderer');
+
+    const innerContents = document.createElement('div');
+    innerContents.id = 'contents';
+    innerContents.innerHTML = `<ytd-video-renderer>
+      <div id="channel-info">
+        <a href="/@TheRealWalterWhiteOfficial1"></a>
+      </div>
+    </ytd-video-renderer>`;
+
+    itemSectionRenderer.appendChild(innerContents);
+    outerContents.appendChild(itemSectionRenderer);
+    document.body.appendChild(outerContents);
+  });
+
+  const injectedVideo = page.locator('ytd-video-renderer');
+  await expect(injectedVideo).toHaveAttribute('data-allowed', '');
 });
 
 test('extension filters videos by whitelist on youtube search results', async ({ page }) => {

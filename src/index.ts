@@ -18,7 +18,7 @@ import {
     observeNewVideos(container, whitelist);
   } else {
     const contents = await waitForContents();
-    filterVideos(contents.querySelectorAll('ytd-rich-item-renderer'), whitelist);
+    filterVideos(contents.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'), whitelist);
     observeNewVideos(contents, whitelist);
   }
 })();

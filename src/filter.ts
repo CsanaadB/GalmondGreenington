@@ -34,14 +34,14 @@ export function observeNewVideos(container: Element, whitelist: Set<string>): vo
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       const added = Array.from(mutation.addedNodes).filter(
-        (node): node is Element => node.nodeName === 'YTD-RICH-ITEM-RENDERER'
+        (node): node is Element => node.nodeName === 'YTD-RICH-ITEM-RENDERER' || node.nodeName === 'YTD-VIDEO-RENDERER'
       );
 
       filterVideos(added, whitelist);
     }
   });
 
-  observer.observe(container, { childList: true });
+  observer.observe(container, { childList: true, subtree: true });
 }
 
 export function filterVideos(items: Iterable<Element>, whitelist: Set<string>): void {
