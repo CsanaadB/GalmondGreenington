@@ -1,7 +1,9 @@
-ytd-rich-item-renderer {
+ytd-rich-item-renderer,
+ytd-video-renderer {
   display: none !important;
 }
 
-ytd-rich-item-renderer[data-allowed] {
+ytd-rich-item-renderer[data-allowed],
+ytd-video-renderer[data-allowed] {
   display: block !important;
 }

@@ -49,12 +49,14 @@ test('observeNewVideos ignores non-video elements', async () => {
 });
 
 test('waitForContents calls back with the #contents element when it appears', async () => {
+  const richGrid = document.createElement('ytd-rich-grid-renderer');
   const contents = document.createElement('div');
   contents.id = 'contents';
+  richGrid.appendChild(contents);
 
   const contentsFound = waitForContents();
 
-  document.body.appendChild(contents);
+  document.body.appendChild(richGrid);
 
   const received = await contentsFound;
 
