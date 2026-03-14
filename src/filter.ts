@@ -8,9 +8,14 @@ export function parseWhitelist(text: string): Set<string> {
 }
 
 export function findContentsElement(nodes: Node[]): Element | undefined {
-  return nodes
+  const sectionList = nodes
     .filter((node): node is Element => node.nodeType === Node.ELEMENT_NODE)
-    .find((element) => element.id === 'contents');
+    .find((element) => element.nodeName === 'YTD-SECTION-LIST-RENDERER' || element.nodeName === 'YTD-RICH-GRID-RENDERER');
+
+  if (sectionList) {
+    return Array.from(sectionList.children)
+      .find((child) => child.id === 'contents');
+  }
 }
 
 export function waitForContents(): Promise<Element> {
@@ -37,7 +42,9 @@ export function observeNewVideos(container: Element, whitelist: Set<string>): vo
         (node): node is Element => node.nodeName === 'YTD-RICH-ITEM-RENDERER' || node.nodeName === 'YTD-VIDEO-RENDERER'
       );
 
-      filterVideos(added, whitelist);
+      if (added.length > 0) {
+        filterVideos(added, whitelist);
+      }
     }
   });
 
