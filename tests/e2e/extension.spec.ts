@@ -228,8 +228,8 @@ test('extension filters search videos when #contents does not exist until after 
 
   await page.goto('https://www.youtube.com/results?search_query=test');
 
-  // youtube inserts #contents with the initial batch of videos already inside,
-  // so videos must be present before appending to DOM
+  /* youtube inserts #contents with the initial batch of videos already inside,
+     so videos must be present before appending to DOM */
   await page.evaluate(() => {
     const outerContents = document.createElement('div');
     outerContents.id = 'contents';
