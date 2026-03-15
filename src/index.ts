@@ -1,8 +1,9 @@
 import {
   filterVideos,
+  findContentsElement,
   observeNewVideos,
   parseWhitelist,
-  waitForContents,
+  waitForElement,
 } from './filter';
 
 (async (): Promise<void> => {
@@ -12,12 +13,10 @@ import {
 
   filterVideos(document.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'), whitelist);
 
-  const container = document.querySelector('#contents');
+  const ytdApp = await waitForElement(document.body, 'ytd-app');
+  const contents = findContentsElement(ytdApp);
 
-  if (container) {
-    observeNewVideos(container, whitelist);
-  } else {
-    const contents = await waitForContents();
+  if (contents) {
     filterVideos(contents.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'), whitelist);
     observeNewVideos(contents, whitelist);
   }

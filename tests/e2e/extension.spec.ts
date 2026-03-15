@@ -129,12 +129,14 @@ test('extension filters homepage videos when #contents does not exist until afte
   await page.goto('https://www.youtube.com/');
 
   await page.evaluate(() => {
+    const ytdApp = document.createElement('ytd-app');
     const richGrid = document.createElement('ytd-rich-grid-renderer');
     const contents = document.createElement('div');
     contents.id = 'contents';
 
     richGrid.appendChild(contents);
-    document.body.appendChild(richGrid);
+    ytdApp.appendChild(richGrid);
+    document.body.appendChild(ytdApp);
   });
 
   await page.locator('#contents').evaluate((el, videoHtml) => {
@@ -152,12 +154,14 @@ test('extension filters infinite scroll videos after late-loading #contents', as
   await page.goto('https://www.youtube.com/');
 
   await page.evaluate(() => {
+    const ytdApp = document.createElement('ytd-app');
     const richGrid = document.createElement('ytd-rich-grid-renderer');
     const contents = document.createElement('div');
     contents.id = 'contents';
 
     richGrid.appendChild(contents);
-    document.body.appendChild(richGrid);
+    ytdApp.appendChild(richGrid);
+    document.body.appendChild(ytdApp);
   });
 
   await page.locator('#contents').evaluate((el, videoHtml) => {
@@ -203,11 +207,15 @@ test('extension filters dynamically added videos on search results', async ({ pa
   await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
     await route.fulfill({
       body: `<html><body>
-        <div id="contents">
-          <ytd-item-section-renderer>
-            <div id="contents"></div>
-          </ytd-item-section-renderer>
-        </div>
+        <ytd-app>
+          <ytd-section-list-renderer>
+            <div id="contents">
+              <ytd-item-section-renderer>
+                <div id="contents"></div>
+              </ytd-item-section-renderer>
+            </div>
+          </ytd-section-list-renderer>
+        </ytd-app>
       </body></html>`,
       contentType: 'text/html',
     });
@@ -244,6 +252,7 @@ test('extension resolves the correct #contents when multiple exist on search pag
   });
 
   await page.evaluate(() => {
+    const ytdApp = document.createElement('ytd-app');
     const sectionList = document.createElement('ytd-section-list-renderer');
     const rightContents = document.createElement('div');
     rightContents.id = 'contents';
@@ -255,7 +264,8 @@ test('extension resolves the correct #contents when multiple exist on search pag
     </ytd-video-renderer>`;
 
     sectionList.appendChild(rightContents);
-    document.body.appendChild(sectionList);
+    ytdApp.appendChild(sectionList);
+    document.body.appendChild(ytdApp);
   });
 
   const video = page.locator('ytd-video-renderer');
@@ -290,7 +300,10 @@ test('extension filters search videos when #contents does not exist until after 
 
     const sectionList = document.createElement('ytd-section-list-renderer');
     sectionList.appendChild(outerContents);
-    document.body.appendChild(sectionList);
+
+    const ytdApp = document.createElement('ytd-app');
+    ytdApp.appendChild(sectionList);
+    document.body.appendChild(ytdApp);
   });
 
   const injectedVideo = page.locator('ytd-video-renderer');
