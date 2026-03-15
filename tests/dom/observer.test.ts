@@ -1,5 +1,9 @@
 import { test, expect } from 'vitest';
-import { observeNewVideos, waitForContents } from '../../src/filter';
+import {
+  findContentsElement,
+  observeNewVideos,
+  waitForElement,
+} from '../../src/filter';
 
 test('observeNewVideos filters whitelisted videos added to the container', async () => {
   const video = document.createElement('ytd-rich-item-renderer');
@@ -48,17 +52,49 @@ test('observeNewVideos ignores non-video elements', async () => {
   expect(nonVideo.hasAttribute('data-allowed')).toBe(false);
 });
 
-test('waitForContents calls back with the #contents element when it appears', async () => {
+test('waitForElement resolves immediately when the element already exists', async () => {
+  const ytdApp = document.createElement('ytd-app');
+  document.body.appendChild(ytdApp);
+
+  const foundApp = await waitForElement(document.body, 'ytd-app');
+  expect(foundApp).toBe(ytdApp);
+
+  ytdApp.remove();
+});
+
+test('waitForElement resolves when matching element is added as a deep descendant', async () => {
+  const parent = document.createElement('div');
+  const child = document.createElement('div');
+  document.body.appendChild(parent);
+  parent.appendChild(child);
+
+  const elementFound = waitForElement(parent, 'span');
+
+  const grandchild = document.createElement('span');
+  child.appendChild(grandchild);
+
+  const foundElement = await elementFound;
+  expect(foundElement).toBe(grandchild);
+
+  parent.remove();
+});
+
+test('waitForElement catches ytd-app, then findContentsElement finds #contents inside it', async () => {
+  const ytdApp = document.createElement('ytd-app');
   const richGrid = document.createElement('ytd-rich-grid-renderer');
-  const contents = document.createElement('div');
-  contents.id = 'contents';
-  richGrid.appendChild(contents);
+  const contentsDiv = document.createElement('div');
+  contentsDiv.id = 'contents';
 
-  const contentsFound = waitForContents();
+  richGrid.appendChild(contentsDiv);
+  ytdApp.appendChild(richGrid);
 
-  document.body.appendChild(richGrid);
+  const elementFoundPromise = waitForElement(document.body, 'ytd-app');
 
-  const received = await contentsFound;
+  document.body.appendChild(ytdApp);
 
-  expect(received).toBe(contents);
+  const foundApp = await elementFoundPromise;
+  expect(foundApp).toBe(ytdApp);
+
+  const foundContents = findContentsElement(foundApp);
+  expect(foundContents).toBe(contentsDiv);
 });

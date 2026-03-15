@@ -28,21 +28,33 @@ describe('findContentsElement', () => {
     contents.id = 'contents';
     richGrid.appendChild(contents);
 
-    expect(findContentsElement([richGrid])).toBe(contents);
+    expect(findContentsElement(richGrid)).toBe(contents);
   });
 
-  it('returns undefined when #contents is not in the list', () => {
+  it('finds #contents inside a nested renderer', () => {
+    const root = document.createElement('div');
+    const richGrid = document.createElement('ytd-rich-grid-renderer');
+    const contents = document.createElement('div');
+    contents.id = 'contents';
+
+    richGrid.appendChild(contents);
+    root.appendChild(richGrid);
+
+    expect(findContentsElement(root)).toBe(contents);
+  });
+
+  it('returns null when #contents is not in the list', () => {
     const other = document.createElement('div');
     other.id = 'something-else';
 
-    expect(findContentsElement([other])).toBeUndefined();
+    expect(findContentsElement(other)).toBeNull();
   });
 
   it('ignores non-element nodes', () => {
     const fragment = document.createDocumentFragment();
     (fragment as any).id = 'contents';
 
-    expect(findContentsElement([fragment])).toBeUndefined();
+    expect(findContentsElement(fragment)).toBeNull();
   });
 });
 

@@ -2,7 +2,7 @@ import {
   filterVideos,
   observeNewVideos,
   parseWhitelist,
-  waitForContents,
+  waitForElement,
 } from './filter';
 
 (async (): Promise<void> => {
@@ -12,13 +12,8 @@ import {
 
   filterVideos(document.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'), whitelist);
 
-  const container = document.querySelector('#contents');
-
-  if (container) {
-    observeNewVideos(container, whitelist);
-  } else {
-    const contents = await waitForContents();
-    filterVideos(contents.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'), whitelist);
-    observeNewVideos(contents, whitelist);
-  }
+  const ytdApp = await waitForElement(document.body, 'ytd-app');
+  const contents = await waitForElement(ytdApp, 'ytd-section-list-renderer > #contents, ytd-rich-grid-renderer > #contents');
+  filterVideos(contents.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'), whitelist);
+  observeNewVideos(contents, whitelist);
 })();

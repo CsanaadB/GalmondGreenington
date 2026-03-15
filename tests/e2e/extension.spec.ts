@@ -121,29 +121,6 @@ test('extension filters dynamically added videos by whitelist', async ({ page })
   await expect(blockedVideo.first()).not.toBeVisible();
 });
 
-test('extension filters homepage videos when #contents does not exist until after page load', async ({ page }) => {
-  await page.route('https://www.youtube.com/', async (route) => {
-    await route.fulfill({ body: '<html><body></body></html>', contentType: 'text/html' });
-  });
-
-  await page.goto('https://www.youtube.com/');
-
-  await page.evaluate(() => {
-    const richGrid = document.createElement('ytd-rich-grid-renderer');
-    const contents = document.createElement('div');
-    contents.id = 'contents';
-
-    richGrid.appendChild(contents);
-    document.body.appendChild(richGrid);
-  });
-
-  await page.locator('#contents').evaluate((el, videoHtml) => {
-    el.insertAdjacentHTML('beforeend', videoHtml);
-  }, videoTemplate('/@TheRealWalterWhiteOfficial1'));
-
-  await expect(page.locator('ytd-rich-item-renderer')).toHaveAttribute('data-allowed', '');
-});
-
 test('extension filters infinite scroll videos after late-loading #contents', async ({ page }) => {
   await page.route('https://www.youtube.com/', async (route) => {
     await route.fulfill({ body: '<html><body></body></html>', contentType: 'text/html' });
@@ -152,12 +129,14 @@ test('extension filters infinite scroll videos after late-loading #contents', as
   await page.goto('https://www.youtube.com/');
 
   await page.evaluate(() => {
+    const ytdApp = document.createElement('ytd-app');
     const richGrid = document.createElement('ytd-rich-grid-renderer');
     const contents = document.createElement('div');
     contents.id = 'contents';
 
     richGrid.appendChild(contents);
-    document.body.appendChild(richGrid);
+    ytdApp.appendChild(richGrid);
+    document.body.appendChild(ytdApp);
   });
 
   await page.locator('#contents').evaluate((el, videoHtml) => {
@@ -203,11 +182,15 @@ test('extension filters dynamically added videos on search results', async ({ pa
   await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
     await route.fulfill({
       body: `<html><body>
-        <div id="contents">
-          <ytd-item-section-renderer>
-            <div id="contents"></div>
-          </ytd-item-section-renderer>
-        </div>
+        <ytd-app>
+          <ytd-section-list-renderer>
+            <div id="contents">
+              <ytd-item-section-renderer>
+                <div id="contents"></div>
+              </ytd-item-section-renderer>
+            </div>
+          </ytd-section-list-renderer>
+        </ytd-app>
       </body></html>`,
       contentType: 'text/html',
     });
@@ -219,12 +202,13 @@ test('extension filters dynamically added videos on search results', async ({ pa
     el.insertAdjacentHTML('beforeend', videoHtml);
   }, `<ytd-video-renderer>
     <div id="channel-info">
-      <a href="/@TheRealWalterWhiteOfficial1"></a>
+      <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
     </div>
   </ytd-video-renderer>`);
 
   const injectedVideo = page.locator('ytd-video-renderer');
   await expect(injectedVideo).toHaveAttribute('data-allowed', '');
+  await expect(injectedVideo).toBeVisible();
 });
 
 test('extension resolves the correct #contents when multiple exist on search page', async ({ page }) => {
@@ -244,22 +228,25 @@ test('extension resolves the correct #contents when multiple exist on search pag
   });
 
   await page.evaluate(() => {
+    const ytdApp = document.createElement('ytd-app');
     const sectionList = document.createElement('ytd-section-list-renderer');
     const rightContents = document.createElement('div');
     rightContents.id = 'contents';
 
     rightContents.innerHTML = `<ytd-video-renderer>
       <div id="channel-info">
-        <a href="/@TheRealWalterWhiteOfficial1"></a>
+        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
       </div>
     </ytd-video-renderer>`;
 
     sectionList.appendChild(rightContents);
-    document.body.appendChild(sectionList);
+    ytdApp.appendChild(sectionList);
+    document.body.appendChild(ytdApp);
   });
 
   const video = page.locator('ytd-video-renderer');
   await expect(video).toHaveAttribute('data-allowed', '');
+  await expect(video).toBeVisible();
 });
 
 test('extension filters search videos when #contents does not exist until after page load', async ({ page }) => {
@@ -281,7 +268,7 @@ test('extension filters search videos when #contents does not exist until after 
     innerContents.id = 'contents';
     innerContents.innerHTML = `<ytd-video-renderer>
       <div id="channel-info">
-        <a href="/@TheRealWalterWhiteOfficial1"></a>
+        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
       </div>
     </ytd-video-renderer>`;
 
@@ -290,11 +277,15 @@ test('extension filters search videos when #contents does not exist until after 
 
     const sectionList = document.createElement('ytd-section-list-renderer');
     sectionList.appendChild(outerContents);
-    document.body.appendChild(sectionList);
+
+    const ytdApp = document.createElement('ytd-app');
+    ytdApp.appendChild(sectionList);
+    document.body.appendChild(ytdApp);
   });
 
   const injectedVideo = page.locator('ytd-video-renderer');
   await expect(injectedVideo).toHaveAttribute('data-allowed', '');
+  await expect(injectedVideo).toBeVisible();
 });
 
 test('extension filters videos by whitelist on youtube search results', async ({ page }) => {
@@ -330,4 +321,58 @@ test('extension filters videos by whitelist on youtube search results', async ({
   for (const video of await blockedVideos.all()) {
     await expect(video).not.toBeVisible();
   }
+});
+
+test('extension filters search videos when DOM is built dynamically inside ytd-app', async ({ page }) => {
+  const fixture = path.resolve('tests/e2e/fixtures/youtube-shell.html');
+  const html = await fs.readFile(fixture, 'utf-8');
+
+  await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
+    await route.fulfill({ body: html, contentType: 'text/html' });
+  });
+
+  await page.goto('https://www.youtube.com/results?search_query=test');
+
+  await page.locator('ytd-app').evaluate((ytdApp) => {
+    const content = document.createElement('div');
+    content.id = 'content';
+
+    const pageManager = document.createElement('ytd-page-manager');
+    const search = document.createElement('ytd-search');
+    const container = document.createElement('div');
+    container.id = 'container';
+
+    const twoColumn = document.createElement('ytd-two-column-search-results-renderer');
+    const primary = document.createElement('div');
+    primary.id = 'primary';
+
+    const sectionList = document.createElement('ytd-section-list-renderer');
+    const contents = document.createElement('div');
+    contents.id = 'contents';
+
+    const itemSection = document.createElement('ytd-item-section-renderer');
+    const innerContents = document.createElement('div');
+    innerContents.id = 'contents';
+
+    innerContents.innerHTML = `<ytd-video-renderer>
+      <div id="channel-info">
+        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
+      </div>
+    </ytd-video-renderer>`;
+
+    itemSection.appendChild(innerContents);
+    contents.appendChild(itemSection);
+    sectionList.appendChild(contents);
+    primary.appendChild(sectionList);
+    twoColumn.appendChild(primary);
+    container.appendChild(twoColumn);
+    search.appendChild(container);
+    pageManager.appendChild(search);
+    content.appendChild(pageManager);
+    ytdApp.appendChild(content);
+  });
+
+  const video = page.locator('ytd-video-renderer');
+  await expect(video).toHaveAttribute('data-allowed', '');
+  await expect(video).toBeVisible();
 });
