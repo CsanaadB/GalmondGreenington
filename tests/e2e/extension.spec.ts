@@ -121,31 +121,6 @@ test('extension filters dynamically added videos by whitelist', async ({ page })
   await expect(blockedVideo.first()).not.toBeVisible();
 });
 
-test('extension filters homepage videos when #contents does not exist until after page load', async ({ page }) => {
-  await page.route('https://www.youtube.com/', async (route) => {
-    await route.fulfill({ body: '<html><body></body></html>', contentType: 'text/html' });
-  });
-
-  await page.goto('https://www.youtube.com/');
-
-  await page.evaluate(() => {
-    const ytdApp = document.createElement('ytd-app');
-    const richGrid = document.createElement('ytd-rich-grid-renderer');
-    const contents = document.createElement('div');
-    contents.id = 'contents';
-
-    richGrid.appendChild(contents);
-    ytdApp.appendChild(richGrid);
-    document.body.appendChild(ytdApp);
-  });
-
-  await page.locator('#contents').evaluate((el, videoHtml) => {
-    el.insertAdjacentHTML('beforeend', videoHtml);
-  }, videoTemplate('/@TheRealWalterWhiteOfficial1'));
-
-  await expect(page.locator('ytd-rich-item-renderer')).toHaveAttribute('data-allowed', '');
-});
-
 test('extension filters infinite scroll videos after late-loading #contents', async ({ page }) => {
   await page.route('https://www.youtube.com/', async (route) => {
     await route.fulfill({ body: '<html><body></body></html>', contentType: 'text/html' });
