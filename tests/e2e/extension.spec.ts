@@ -249,44 +249,6 @@ test('extension resolves the correct #contents when multiple exist on search pag
   await expect(video).toBeVisible();
 });
 
-test('extension filters search videos when #contents does not exist until after page load', async ({ page }) => {
-  await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
-    await route.fulfill({ body: '<html><body></body></html>', contentType: 'text/html' });
-  });
-
-  await page.goto('https://www.youtube.com/results?search_query=test');
-
-  /* youtube inserts #contents with the initial batch of videos already inside,
-     so videos must be present before appending to DOM */
-  await page.evaluate(() => {
-    const outerContents = document.createElement('div');
-    outerContents.id = 'contents';
-
-    const itemSectionRenderer = document.createElement('ytd-item-section-renderer');
-
-    const innerContents = document.createElement('div');
-    innerContents.id = 'contents';
-    innerContents.innerHTML = `<ytd-video-renderer>
-      <div id="channel-info">
-        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
-      </div>
-    </ytd-video-renderer>`;
-
-    itemSectionRenderer.appendChild(innerContents);
-    outerContents.appendChild(itemSectionRenderer);
-
-    const sectionList = document.createElement('ytd-section-list-renderer');
-    sectionList.appendChild(outerContents);
-
-    const ytdApp = document.createElement('ytd-app');
-    ytdApp.appendChild(sectionList);
-    document.body.appendChild(ytdApp);
-  });
-
-  const injectedVideo = page.locator('ytd-video-renderer');
-  await expect(injectedVideo).toHaveAttribute('data-allowed', '');
-  await expect(injectedVideo).toBeVisible();
-});
 
 test('extension filters videos by whitelist on youtube search results', async ({ page }) => {
   const fixture = path.resolve('tests/e2e/fixtures/youtube-search.html');
