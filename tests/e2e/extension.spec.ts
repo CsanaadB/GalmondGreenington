@@ -202,12 +202,13 @@ test('extension filters dynamically added videos on search results', async ({ pa
     el.insertAdjacentHTML('beforeend', videoHtml);
   }, `<ytd-video-renderer>
     <div id="channel-info">
-      <a href="/@TheRealWalterWhiteOfficial1"></a>
+      <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
     </div>
   </ytd-video-renderer>`);
 
   const injectedVideo = page.locator('ytd-video-renderer');
   await expect(injectedVideo).toHaveAttribute('data-allowed', '');
+  await expect(injectedVideo).toBeVisible();
 });
 
 test('extension resolves the correct #contents when multiple exist on search page', async ({ page }) => {
@@ -234,7 +235,7 @@ test('extension resolves the correct #contents when multiple exist on search pag
 
     rightContents.innerHTML = `<ytd-video-renderer>
       <div id="channel-info">
-        <a href="/@TheRealWalterWhiteOfficial1"></a>
+        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
       </div>
     </ytd-video-renderer>`;
 
@@ -245,6 +246,7 @@ test('extension resolves the correct #contents when multiple exist on search pag
 
   const video = page.locator('ytd-video-renderer');
   await expect(video).toHaveAttribute('data-allowed', '');
+  await expect(video).toBeVisible();
 });
 
 test('extension filters search videos when #contents does not exist until after page load', async ({ page }) => {
@@ -266,7 +268,7 @@ test('extension filters search videos when #contents does not exist until after 
     innerContents.id = 'contents';
     innerContents.innerHTML = `<ytd-video-renderer>
       <div id="channel-info">
-        <a href="/@TheRealWalterWhiteOfficial1"></a>
+        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
       </div>
     </ytd-video-renderer>`;
 
@@ -283,6 +285,7 @@ test('extension filters search videos when #contents does not exist until after 
 
   const injectedVideo = page.locator('ytd-video-renderer');
   await expect(injectedVideo).toHaveAttribute('data-allowed', '');
+  await expect(injectedVideo).toBeVisible();
 });
 
 test('extension filters videos by whitelist on youtube search results', async ({ page }) => {
@@ -318,4 +321,58 @@ test('extension filters videos by whitelist on youtube search results', async ({
   for (const video of await blockedVideos.all()) {
     await expect(video).not.toBeVisible();
   }
+});
+
+test('extension filters search videos when DOM is built dynamically inside ytd-app', async ({ page }) => {
+  const fixture = path.resolve('tests/e2e/fixtures/youtube-shell.html');
+  const html = await fs.readFile(fixture, 'utf-8');
+
+  await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
+    await route.fulfill({ body: html, contentType: 'text/html' });
+  });
+
+  await page.goto('https://www.youtube.com/results?search_query=test');
+
+  await page.locator('ytd-app').evaluate((ytdApp) => {
+    const content = document.createElement('div');
+    content.id = 'content';
+
+    const pageManager = document.createElement('ytd-page-manager');
+    const search = document.createElement('ytd-search');
+    const container = document.createElement('div');
+    container.id = 'container';
+
+    const twoColumn = document.createElement('ytd-two-column-search-results-renderer');
+    const primary = document.createElement('div');
+    primary.id = 'primary';
+
+    const sectionList = document.createElement('ytd-section-list-renderer');
+    const contents = document.createElement('div');
+    contents.id = 'contents';
+
+    const itemSection = document.createElement('ytd-item-section-renderer');
+    const innerContents = document.createElement('div');
+    innerContents.id = 'contents';
+
+    innerContents.innerHTML = `<ytd-video-renderer>
+      <div id="channel-info">
+        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
+      </div>
+    </ytd-video-renderer>`;
+
+    itemSection.appendChild(innerContents);
+    contents.appendChild(itemSection);
+    sectionList.appendChild(contents);
+    primary.appendChild(sectionList);
+    twoColumn.appendChild(primary);
+    container.appendChild(twoColumn);
+    search.appendChild(container);
+    pageManager.appendChild(search);
+    content.appendChild(pageManager);
+    ytdApp.appendChild(content);
+  });
+
+  const video = page.locator('ytd-video-renderer');
+  await expect(video).toHaveAttribute('data-allowed', '');
+  await expect(video).toBeVisible();
 });

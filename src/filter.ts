@@ -33,7 +33,7 @@ export function waitForElement(parent: Element, selector: string): Promise<Eleme
       }
     });
 
-    observer.observe(parent, { childList: true });
+    observer.observe(parent, { childList: true, subtree: true });
   });
 }
 

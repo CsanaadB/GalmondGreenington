@@ -62,6 +62,23 @@ test('waitForElement resolves immediately when the element already exists', asyn
   ytdApp.remove();
 });
 
+test('waitForElement resolves when matching element is added as a deep descendant', async () => {
+  const parent = document.createElement('div');
+  const child = document.createElement('div');
+  document.body.appendChild(parent);
+  parent.appendChild(child);
+
+  const elementFound = waitForElement(parent, 'span');
+
+  const grandchild = document.createElement('span');
+  child.appendChild(grandchild);
+
+  const foundElement = await elementFound;
+  expect(foundElement).toBe(grandchild);
+
+  parent.remove();
+});
+
 test('waitForElement catches ytd-app, then findContentsElement finds #contents inside it', async () => {
   const ytdApp = document.createElement('ytd-app');
   const richGrid = document.createElement('ytd-rich-grid-renderer');
