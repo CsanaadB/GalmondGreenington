@@ -7,13 +7,6 @@ export function parseWhitelist(text: string): Set<string> {
   return new Set(listItems);
 }
 
-export function findContentsElement(node: Node): Element | null {
-  if (!(node instanceof Element)) {
-    return null;
-  }
-
-  return node.querySelector('ytd-section-list-renderer > #contents, ytd-rich-grid-renderer > #contents');
-}
 
 export function waitForElement(parent: Element, selector: string): Promise<Element> {
   return new Promise((resolve) => {

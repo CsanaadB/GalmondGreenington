@@ -1,6 +1,5 @@
 import { test, expect } from 'vitest';
 import {
-  findContentsElement,
   observeNewVideos,
   waitForElement,
 } from '../../src/filter';
@@ -77,24 +76,4 @@ test('waitForElement resolves when matching element is added as a deep descendan
   expect(foundElement).toBe(grandchild);
 
   parent.remove();
-});
-
-test('waitForElement catches ytd-app, then findContentsElement finds #contents inside it', async () => {
-  const ytdApp = document.createElement('ytd-app');
-  const richGrid = document.createElement('ytd-rich-grid-renderer');
-  const contentsDiv = document.createElement('div');
-  contentsDiv.id = 'contents';
-
-  richGrid.appendChild(contentsDiv);
-  ytdApp.appendChild(richGrid);
-
-  const elementFoundPromise = waitForElement(document.body, 'ytd-app');
-
-  document.body.appendChild(ytdApp);
-
-  const foundApp = await elementFoundPromise;
-  expect(foundApp).toBe(ytdApp);
-
-  const foundContents = findContentsElement(foundApp);
-  expect(foundContents).toBe(contentsDiv);
 });
