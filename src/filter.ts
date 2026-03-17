@@ -30,7 +30,7 @@ export function waitForElement(parent: Element, selector: string): Promise<Eleme
   });
 }
 
-export function observeNewVideos(container: Element, whitelist: Set<string>): void {
+export function observeNewVideos(container: Element, whitelist: Set<string>): MutationObserver {
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       const added = Array.from(mutation.addedNodes).filter(
@@ -44,6 +44,8 @@ export function observeNewVideos(container: Element, whitelist: Set<string>): vo
   });
 
   observer.observe(container, { childList: true, subtree: true });
+
+  return observer;
 }
 
 export function filterVideos(items: Iterable<Element>, whitelist: Set<string>): void {
