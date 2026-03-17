@@ -56,7 +56,7 @@ export function filterVideos(items: Iterable<Element>, whitelist: Set<string>): 
     const link = item.querySelector('a[href^="/@"]');
 
     if (!link) {
-        continue;
+      continue;
     }
 
     const href = link.getAttribute('href');

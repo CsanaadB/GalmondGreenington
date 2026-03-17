@@ -11,8 +11,6 @@ import {
   const response = await fetch(chrome.runtime.getURL('whitelist.txt'));
   const whitelist = parseWhitelist(await response.text());
 
-  filterVideos(document.querySelectorAll(VIDEO_SELECTOR), whitelist);
-
   const ytdApp = await waitForElement(document.body, 'ytd-app');
   const contents = await waitForElement(ytdApp, 'ytd-section-list-renderer > #contents, ytd-rich-grid-renderer > #contents');
   filterVideos(contents.querySelectorAll(VIDEO_SELECTOR), whitelist);
