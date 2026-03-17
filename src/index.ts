@@ -16,6 +16,10 @@ import {
   filterVideos(contents.querySelectorAll(VIDEO_SELECTOR), whitelist);
   let videoObserver = observeNewVideos(contents, whitelist);
 
+  document.addEventListener('yt-renderidom-finished', () => {
+    filterVideos(document.querySelectorAll(VIDEO_SELECTOR), whitelist);
+  });
+
   document.addEventListener('yt-navigate-finish', () => {
     videoObserver.disconnect();
 

@@ -164,6 +164,41 @@ test('extension filters infinite scroll videos after late-loading #contents', as
   await expect(scrolledBlocked.first()).not.toBeVisible();
 });
 
+test('extension filters empty shell videos once they get populated', async ({ page }) => {
+  await page.route('https://www.youtube.com/', async (route) => {
+    await route.fulfill({ body: '<html><body></body></html>', contentType: 'text/html' });
+  });
+
+  await page.goto('https://www.youtube.com/');
+
+  await page.evaluate(() => {
+    const ytdApp = document.createElement('ytd-app');
+    const richGrid = document.createElement('ytd-rich-grid-renderer');
+    const contents = document.createElement('div');
+    contents.id = 'contents';
+
+    const shell = document.createElement('ytd-rich-item-renderer');
+    contents.appendChild(shell);
+
+    richGrid.appendChild(contents);
+    ytdApp.appendChild(richGrid);
+    document.body.appendChild(ytdApp);
+  });
+
+  const videoShell = page.locator('ytd-rich-item-renderer');
+  await expect(videoShell).not.toHaveAttribute('data-allowed');
+
+  await videoShell.evaluate((el) => {
+    el.innerHTML = `<div id="content">
+      <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
+    </div>`;
+
+    document.dispatchEvent(new CustomEvent('yt-renderidom-finished', { bubbles: true }));
+  });
+
+  await expect(videoShell).toHaveAttribute('data-allowed', '');
+});
+
 test('extension hides all search result videos', async ({ page }) => {
   const fixture = path.resolve('tests/e2e/fixtures/youtube-search.html');
   const html = await fs.readFile(fixture, 'utf-8');
