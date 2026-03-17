@@ -1,3 +1,6 @@
+export const VIDEO_TAGS = ['ytd-rich-item-renderer', 'ytd-video-renderer'];
+export const VIDEO_SELECTOR = VIDEO_TAGS.join(', ');
+
 export function parseWhitelist(text: string): Set<string> {
   const listItems = text
     .split('\n')
@@ -30,11 +33,11 @@ export function waitForElement(parent: Element, selector: string): Promise<Eleme
   });
 }
 
-export function observeNewVideos(container: Element, whitelist: Set<string>): void {
+export function observeNewVideos(container: Element, whitelist: Set<string>): MutationObserver {
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       const added = Array.from(mutation.addedNodes).filter(
-        (node): node is Element => node.nodeName === 'YTD-RICH-ITEM-RENDERER' || node.nodeName === 'YTD-VIDEO-RENDERER'
+        (node): node is Element => VIDEO_TAGS.includes(node.nodeName.toLowerCase())
       );
 
       if (added.length > 0) {
@@ -44,6 +47,8 @@ export function observeNewVideos(container: Element, whitelist: Set<string>): vo
   });
 
   observer.observe(container, { childList: true, subtree: true });
+
+  return observer;
 }
 
 export function filterVideos(items: Iterable<Element>, whitelist: Set<string>): void {
@@ -51,7 +56,7 @@ export function filterVideos(items: Iterable<Element>, whitelist: Set<string>): 
     const link = item.querySelector('a[href^="/@"]');
 
     if (!link) {
-        continue;
+      continue;
     }
 
     const href = link.getAttribute('href');

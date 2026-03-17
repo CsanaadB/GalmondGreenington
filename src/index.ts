@@ -1,4 +1,5 @@
 import {
+  VIDEO_SELECTOR,
   filterVideos,
   observeNewVideos,
   parseWhitelist,
@@ -10,10 +11,16 @@ import {
   const response = await fetch(chrome.runtime.getURL('whitelist.txt'));
   const whitelist = parseWhitelist(await response.text());
 
-  filterVideos(document.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'), whitelist);
-
   const ytdApp = await waitForElement(document.body, 'ytd-app');
   const contents = await waitForElement(ytdApp, 'ytd-section-list-renderer > #contents, ytd-rich-grid-renderer > #contents');
-  filterVideos(contents.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'), whitelist);
-  observeNewVideos(contents, whitelist);
+  filterVideos(contents.querySelectorAll(VIDEO_SELECTOR), whitelist);
+  let videoObserver = observeNewVideos(contents, whitelist);
+
+  document.addEventListener('yt-navigate-finish', () => {
+    videoObserver.disconnect();
+
+    filterVideos(document.querySelectorAll(VIDEO_SELECTOR), whitelist);
+
+    videoObserver = observeNewVideos(ytdApp, whitelist);
+  });
 })();
