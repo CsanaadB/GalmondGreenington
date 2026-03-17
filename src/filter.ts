@@ -1,3 +1,6 @@
+export const VIDEO_TAGS = ['ytd-rich-item-renderer', 'ytd-video-renderer'];
+export const VIDEO_SELECTOR = VIDEO_TAGS.join(', ');
+
 export function parseWhitelist(text: string): Set<string> {
   const listItems = text
     .split('\n')
@@ -34,7 +37,7 @@ export function observeNewVideos(container: Element, whitelist: Set<string>): Mu
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       const added = Array.from(mutation.addedNodes).filter(
-        (node): node is Element => node.nodeName === 'YTD-RICH-ITEM-RENDERER' || node.nodeName === 'YTD-VIDEO-RENDERER'
+        (node): node is Element => VIDEO_TAGS.includes(node.nodeName.toLowerCase())
       );
 
       if (added.length > 0) {
