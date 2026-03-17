@@ -16,4 +16,13 @@ import {
   const contents = await waitForElement(ytdApp, 'ytd-section-list-renderer > #contents, ytd-rich-grid-renderer > #contents');
   filterVideos(contents.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'), whitelist);
   observeNewVideos(contents, whitelist);
+
+  document.addEventListener('yt-navigate-finish', () => {
+    filterVideos(
+      document.querySelectorAll('ytd-rich-item-renderer, ytd-video-renderer'),
+      whitelist,
+    );
+
+    observeNewVideos(ytdApp, whitelist);
+  });
 })();

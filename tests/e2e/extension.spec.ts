@@ -285,6 +285,101 @@ test('extension filters videos by whitelist on youtube search results', async ({
   }
 });
 
+test('extension filters videos after SPA navigation from homepage to search', async ({ page }) => {
+  const homeHtml = await fs.readFile(path.resolve('tests/e2e/fixtures/youtube-homepage.html'), 'utf-8');
+
+  await page.route('https://www.youtube.com/', async (route) => {
+    await route.fulfill({ body: homeHtml, contentType: 'text/html' });
+  });
+
+  await page.goto('https://www.youtube.com/');
+
+  await page.locator('ytd-app').evaluate((ytdApp) => {
+    const sectionList = document.createElement('ytd-section-list-renderer');
+    const contents = document.createElement('div');
+    contents.id = 'contents';
+
+    contents.innerHTML = `<ytd-video-renderer>
+      <div id="channel-info">
+        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
+      </div>
+    </ytd-video-renderer>`;
+
+    sectionList.appendChild(contents);
+    ytdApp.appendChild(sectionList);
+
+    document.dispatchEvent(new CustomEvent('yt-navigate-finish', {
+      detail: { pageType: 'search' },
+    }));
+  });
+
+  const searchVideo = page.locator(
+    'ytd-video-renderer:has(a[href="/@TheRealWalterWhiteOfficial1"])'
+  );
+  await expect(searchVideo).toHaveAttribute('data-allowed', '');
+
+  await page.locator('ytd-video-renderer').evaluate((existing) => {
+    const parent = existing.parentElement;
+    if (!parent) {
+      throw new Error('video has no parent');
+    }
+
+    parent.insertAdjacentHTML('beforeend', `<ytd-video-renderer>
+      <div id="channel-info">
+        <a href="/@detectiveRust999">detectiveRust999</a>
+      </div>
+    </ytd-video-renderer>`);
+  });
+
+  const scrolledVideo = page.locator(
+    'ytd-video-renderer:has(a[href="/@detectiveRust999"])'
+  );
+  await expect(scrolledVideo).toHaveAttribute('data-allowed', '');
+
+  await page.locator('ytd-video-renderer').first().evaluate((existing) => {
+    const parent = existing.parentElement;
+    if (!parent) {
+      throw new Error('video has no parent');
+    }
+
+    parent.insertAdjacentHTML('beforeend', `<ytd-video-renderer>
+      <div id="channel-info">
+        <a href="/@SomeBlockedChannel">SomeBlockedChannel</a>
+      </div>
+    </ytd-video-renderer>`);
+  });
+
+  const blockedVideo = page.locator(
+    'ytd-video-renderer:has(a[href="/@SomeBlockedChannel"])'
+  );
+  await expect(blockedVideo).not.toHaveAttribute('data-allowed');
+  await expect(blockedVideo).not.toBeVisible();
+
+  await page.evaluate(() => {
+    document.dispatchEvent(new CustomEvent('yt-navigate-finish', {
+      detail: { pageType: 'browse' },
+    }));
+  });
+
+  await page.locator('ytd-video-renderer').first().evaluate((existing) => {
+    const parent = existing.parentElement;
+    if (!parent) {
+      throw new Error('video has no parent');
+    }
+
+    parent.insertAdjacentHTML('beforeend', `<ytd-video-renderer>
+      <div id="channel-info">
+        <a href="/@captainAdama777">captainAdama777</a>
+      </div>
+    </ytd-video-renderer>`);
+  });
+
+  const videoAfterSecondNav = page.locator(
+    'ytd-video-renderer:has(a[href="/@captainAdama777"])'
+  );
+  await expect(videoAfterSecondNav).toHaveAttribute('data-allowed', '');
+});
+
 test('extension filters search videos when DOM is built dynamically inside ytd-app', async ({ page }) => {
   const fixture = path.resolve('tests/e2e/fixtures/youtube-shell.html');
   const html = await fs.readFile(fixture, 'utf-8');
