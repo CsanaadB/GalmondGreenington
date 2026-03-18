@@ -2,6 +2,7 @@ import { test, expect } from 'vitest';
 import {
   observeNewVideos,
   waitForElement,
+  watchForContentSwap,
 } from '../../src/filter';
 
 test('observeNewVideos filters whitelisted videos added to the container', async () => {
@@ -49,6 +50,22 @@ test('observeNewVideos ignores non-video elements', async () => {
   await Promise.resolve();
 
   expect(nonVideo.hasAttribute('data-allowed')).toBe(false);
+});
+
+test('watchForContentSwap removes data-allowed when channel link changes', async () => {
+  const video = document.createElement('ytd-rich-item-renderer');
+  const link = document.createElement('a');
+  link.setAttribute('href', '/@whitelisted-channel');
+  video.appendChild(link);
+  video.toggleAttribute('data-allowed', true);
+
+  const whitelist = new Set(['/@whitelisted-channel']);
+  watchForContentSwap(video, '/@whitelisted-channel', whitelist);
+
+  link.setAttribute('href', '/@non-whitelisted-channel');
+  await Promise.resolve();
+
+  expect(video.hasAttribute('data-allowed')).toBe(false);
 });
 
 test('waitForElement resolves immediately when the element already exists', async () => {

@@ -51,6 +51,23 @@ export function observeNewVideos(container: Element, whitelist: Set<string>): Mu
   return observer;
 }
 
+export function watchForContentSwap(item: Element, originalHref: string, whitelist: Set<string>): void {
+  const observer = new MutationObserver(() => {
+    const link = item.querySelector('a[href^="/@"]');
+    const currentHref = link?.getAttribute('href');
+
+    if (currentHref !== originalHref) {
+      observer.disconnect();
+
+      if (!currentHref || !whitelist.has(currentHref)) {
+        item.removeAttribute('data-allowed');
+      }
+    }
+  });
+
+  observer.observe(item, { childList: true, subtree: true, attributes: true });
+}
+
 export function filterVideos(items: Iterable<Element>, whitelist: Set<string>): void {
   for (const item of items) {
     const link = item.querySelector('a[href^="/@"]');
@@ -63,6 +80,9 @@ export function filterVideos(items: Iterable<Element>, whitelist: Set<string>): 
 
     if (href && whitelist.has(href)) {
       item.toggleAttribute('data-allowed', true);
+      watchForContentSwap(item, href, whitelist);
+    } else {
+      item.removeAttribute('data-allowed');
     }
   }
 }

@@ -26,6 +26,18 @@ describe('filterVideos', () => {
     expect(item.hasAttribute('data-allowed')).toBe(false);
   });
 
+  it('removes data-allowed from non-whitelisted item that previously had it', () => {
+    const item = document.createElement('ytd-rich-item-renderer');
+    const link = document.createElement('a');
+    link.setAttribute('href', '/@NotOnTheList');
+    item.appendChild(link);
+    item.toggleAttribute('data-allowed', true);
+
+    filterVideos([item], new Set(['/@SomeOtherChannel']));
+
+    expect(item.hasAttribute('data-allowed')).toBe(false);
+  });
+
   it('skips items without a channel link', () => {
     const item = document.createElement('ytd-rich-item-renderer');
     expect(() => filterVideos([item], new Set())).not.toThrow();
