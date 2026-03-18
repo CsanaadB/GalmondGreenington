@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "node build.js",
-    "test:unit": "npx vitest run tests/unit",
-    "test:dom": "npx vitest run tests/dom",
-    "test:e2e": "npm run build && npx playwright test",
-    "lint": "npx eslint .",
+    "test:unit": "vitest run tests/unit",
+    "test:dom": "vitest run tests/dom",
+    "test:e2e": "npm run build && playwright test",
+    "lint": "eslint .",
     "test": "npm run test:unit && npm run test:dom && npm run test:e2e",
     "preview": "npm run build && chromium --load-extension=./extension --disable-extensions-except=./extension https://www.youtube.com"
   },
