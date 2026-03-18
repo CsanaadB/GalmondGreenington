@@ -8,9 +8,6 @@ on:
     branches:
       - master
 
-# TODO: figure out e2e tests, testing extensions seems to require a headed browser
-# (check a virtual display like Xvfb)
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -39,3 +36,21 @@ jobs:
       - run: npm ci
 
       - run: npm run test:unit
+
+      - run: npm run test:dom
+
+  test-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run test:e2e

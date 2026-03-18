@@ -6,7 +6,8 @@ const test = base.extend({
   context: async ({}, use) => {
     const extensionPath = path.resolve('extension');
     const context = await chromium.launchPersistentContext('', {
-      headless: false,
+      headless: true,
+      channel: 'chromium',
       args: [
         `--disable-extensions-except=${extensionPath}`,
         `--load-extension=${extensionPath}`,
