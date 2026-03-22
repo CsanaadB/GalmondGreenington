@@ -5,8 +5,35 @@ import {
   isBrowseResponse,
   isSearchResponse,
   type BrowseItem,
+  type LockupViewModel,
   type SearchItem,
 } from '../../src/intercept';
+
+function lockupMetadata(handle: string): LockupViewModel['metadata'] {
+  return {
+    lockupMetadataViewModel: {
+      metadata: {
+        contentMetadataViewModel: {
+          metadataRows: [{
+            metadataParts: [{
+              text: {
+                commandRuns: [{
+                  onTap: {
+                    innertubeCommand: {
+                      browseEndpoint: {
+                        canonicalBaseUrl: handle 
+                      }
+                    }
+                  }
+                }]
+              }
+            }]
+          }]
+        }
+      }
+    }
+  };
+}
 
 describe('filterBrowseItems', () => {
   it('keeps only whitelisted items', () => {
@@ -15,11 +42,7 @@ describe('filterBrowseItems', () => {
         content: {
           lockupViewModel: {
             contentId: 'vid-1',
-            metadata: { lockupMetadataViewModel: { metadata: { contentMetadataViewModel: {
-              metadataRows: [{ metadataParts: [{ text: { commandRuns: [{ onTap: { innertubeCommand: {
-                browseEndpoint: { canonicalBaseUrl: '/@whitelistedChannel' }
-              } } }] } }] }]
-            } } } }
+            metadata: lockupMetadata('/@whitelistedChannel')
           }
         }
       }
@@ -29,11 +52,7 @@ describe('filterBrowseItems', () => {
         content: {
           lockupViewModel: {
             contentId: 'vid-2',
-            metadata: { lockupMetadataViewModel: { metadata: { contentMetadataViewModel: {
-              metadataRows: [{ metadataParts: [{ text: { commandRuns: [{ onTap: { innertubeCommand: {
-                browseEndpoint: { canonicalBaseUrl: '/@blockedChannel' }
-              } } }] } }] }]
-            } } } }
+            metadata: lockupMetadata('/@blockedChannel')
           }
         }
       }
