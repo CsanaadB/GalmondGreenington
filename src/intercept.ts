@@ -1,10 +1,94 @@
-interface BrowseAction {
-  appendContinuationItemsAction?: {
-    continuationItems: unknown[];
+import { parseWhitelist } from './filter';
+
+interface BrowseResponse {
+  onResponseReceivedActions: Array<{
+    appendContinuationItemsAction?: {
+      continuationItems: BrowseItem[];
+    };
+  }>;
+}
+
+interface SearchResponse {
+  contents: {
+    twoColumnSearchResultsRenderer: {
+      primaryContents: {
+        sectionListRenderer: {
+          contents: Array<{
+            itemSectionRenderer?: {
+              contents: SearchItem[];
+            };
+          }>;
+        };
+      };
+    };
   };
 }
 
-import { parseWhitelist } from './filter';
+export interface MetadataPart {
+  text: {
+    commandRuns: Array<{
+      onTap: {
+        innertubeCommand: {
+          browseEndpoint: {
+            canonicalBaseUrl: string;
+          };
+        };
+      };
+    }>;
+  };
+}
+
+export interface LockupViewModel {
+  contentId: string;
+  metadata: {
+    lockupMetadataViewModel: {
+      metadata: {
+        contentMetadataViewModel: {
+          metadataRows: Array<{
+            metadataParts: MetadataPart[];
+          }>;
+        };
+      };
+    };
+  };
+}
+
+export interface BrowseItem {
+  richItemRenderer?: {
+    content: {
+      lockupViewModel?: LockupViewModel;
+    };
+  };
+}
+
+export interface VideoRenderer {
+  videoId: string;
+  longBylineText: {
+    runs: Array<{
+      navigationEndpoint: {
+        commandMetadata: {
+          webCommandMetadata: {
+            url: string;
+          };
+        };
+      };
+    }>;
+  };
+}
+
+export interface SearchItem {
+  videoRenderer?: VideoRenderer;
+}
+
+export function isBrowseResponse(data: unknown): data is BrowseResponse {
+  return typeof data === 'object' && data !== null
+    && 'onResponseReceivedActions' in data;
+}
+
+export function isSearchResponse(data: unknown): data is SearchResponse {
+  return typeof data === 'object' && data !== null
+    && 'contents' in data;
+}
 
 let whitelist: Set<string> | null = null;
 
@@ -37,7 +121,7 @@ window.fetch = new Proxy(window.fetch, {
       return response;
     }
 
-    if (isBrowse && data.onResponseReceivedActions) {
+    if (isBrowse && isBrowseResponse(data)) {
       for (const action of data.onResponseReceivedActions) {
         if (action.appendContinuationItemsAction) {
           action.appendContinuationItemsAction.continuationItems =
@@ -46,7 +130,7 @@ window.fetch = new Proxy(window.fetch, {
       }
     }
 
-    if (isSearch && data.contents) {
+    if (isSearch && isSearchResponse(data)) {
       const sections = data.contents.twoColumnSearchResultsRenderer
         .primaryContents.sectionListRenderer.contents;
 
@@ -66,8 +150,7 @@ window.fetch = new Proxy(window.fetch, {
   }
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getHandleFromLockupViewModel(lvm: any): string | null {
+function getHandleFromLockupViewModel(lvm: LockupViewModel): string | null {
   try {
     return lvm.metadata.lockupMetadataViewModel
       .metadata.contentMetadataViewModel
@@ -79,8 +162,7 @@ function getHandleFromLockupViewModel(lvm: any): string | null {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getHandleFromVideoRenderer(vr: any): string | null {
+function getHandleFromVideoRenderer(vr: VideoRenderer): string | null {
   try {
     return vr.longBylineText.runs[0].navigationEndpoint
       .commandMetadata.webCommandMetadata.url;
@@ -89,8 +171,7 @@ function getHandleFromVideoRenderer(vr: any): string | null {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function filterSearchItems(items: any[], whitelist: Set<string>): any[] {
+export function filterSearchItems(items: SearchItem[], whitelist: Set<string>): SearchItem[] {
   return items.filter((item) => {
     if (!item.videoRenderer) { return true; }
 
@@ -99,8 +180,7 @@ export function filterSearchItems(items: any[], whitelist: Set<string>): any[] {
   });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function filterBrowseItems(items: any[], whitelist: Set<string>): any[] {
+export function filterBrowseItems(items: BrowseItem[], whitelist: Set<string>): BrowseItem[] {
   return items.filter((item) => {
     if (!item.richItemRenderer) { return true; }
     if (!item.richItemRenderer.content) { return true; }

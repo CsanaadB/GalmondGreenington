@@ -1,9 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { filterBrowseItems, filterSearchItems } from '../../src/intercept';
+import {
+  filterBrowseItems,
+  filterSearchItems,
+  isBrowseResponse,
+  isSearchResponse,
+  type BrowseItem,
+  type SearchItem,
+} from '../../src/intercept';
 
 describe('filterBrowseItems', () => {
   it('keeps only whitelisted items', () => {
-    const whitelistedItem = {
+    const whitelistedItem: BrowseItem = {
       richItemRenderer: {
         content: {
           lockupViewModel: {
@@ -17,7 +24,7 @@ describe('filterBrowseItems', () => {
         }
       }
     };
-    const blockedItem = {
+    const blockedItem: BrowseItem = {
       richItemRenderer: {
         content: {
           lockupViewModel: {
@@ -35,11 +42,18 @@ describe('filterBrowseItems', () => {
     const filtered = filterBrowseItems([whitelistedItem, blockedItem], whitelist);
     expect(filtered).toEqual([whitelistedItem]);
   });
+
+  it('passes through items without richItemRenderer', () => {
+    const nonVideoItem: BrowseItem = {};
+    const whitelist = new Set(['/@someChannel']);
+    const filtered = filterBrowseItems([nonVideoItem], whitelist);
+    expect(filtered).toEqual([nonVideoItem]);
+  });
 });
 
 describe('filterSearchItems', () => {
   it('keeps only whitelisted items', () => {
-    const whitelistedItem = {
+    const whitelistedItem: SearchItem = {
       videoRenderer: {
         videoId: 'vid-1',
         longBylineText: { runs: [{ navigationEndpoint: { commandMetadata: {
@@ -47,7 +61,7 @@ describe('filterSearchItems', () => {
         } } }] }
       }
     };
-    const blockedItem = {
+    const blockedItem: SearchItem = {
       videoRenderer: {
         videoId: 'vid-2',
         longBylineText: { runs: [{ navigationEndpoint: { commandMetadata: {
@@ -58,5 +72,40 @@ describe('filterSearchItems', () => {
     const whitelist = new Set(['/@whitelistedChannel']);
     const filtered = filterSearchItems([whitelistedItem, blockedItem], whitelist);
     expect(filtered).toEqual([whitelistedItem]);
+  });
+
+  it('passes through items without videoRenderer', () => {
+    const nonVideoItem: SearchItem = {};
+    const whitelist = new Set(['/@someChannel']);
+    const filtered = filterSearchItems([nonVideoItem], whitelist);
+    expect(filtered).toEqual([nonVideoItem]);
+  });
+});
+
+describe('isBrowseResponse', () => {
+  it('returns true for data with onResponseReceivedActions', () => {
+    expect(isBrowseResponse({ onResponseReceivedActions: [] })).toBe(true);
+  });
+
+  it('returns false for data without onResponseReceivedActions', () => {
+    expect(isBrowseResponse({ contents: {} })).toBe(false);
+  });
+
+  it('returns false for null', () => {
+    expect(isBrowseResponse(null)).toBe(false);
+  });
+});
+
+describe('isSearchResponse', () => {
+  it('returns true for data with contents', () => {
+    expect(isSearchResponse({ contents: {} })).toBe(true);
+  });
+
+  it('returns false for data without contents', () => {
+    expect(isSearchResponse({ onResponseReceivedActions: [] })).toBe(false);
+  });
+
+  it('returns false for null', () => {
+    expect(isSearchResponse(null)).toBe(false);
   });
 });
