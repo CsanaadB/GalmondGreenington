@@ -1,0 +1,171 @@
+{
+  "responseContext": {},
+  "onResponseReceivedActions": [
+    {
+      "appendContinuationItemsAction": {
+        "continuationItems": [
+          {
+            "richItemRenderer": {
+              "content": {
+                "lockupViewModel": {
+                  "contentId": "whitelisted-video-1",
+                  "metadata": {
+                    "lockupMetadataViewModel": {
+                      "title": { "content": "Whitelisted Video One" },
+                      "metadata": {
+                        "contentMetadataViewModel": {
+                          "metadataRows": [
+                            {
+                              "metadataParts": [
+                                {
+                                  "text": {
+                                    "content": "TheRealWalterWhiteOfficial1",
+                                    "commandRuns": [
+                                      {
+                                        "onTap": {
+                                          "innertubeCommand": {
+                                            "browseEndpoint": {
+                                              "canonicalBaseUrl": "/@TheRealWalterWhiteOfficial1"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "richItemRenderer": {
+              "content": {
+                "lockupViewModel": {
+                  "contentId": "blocked-video-1",
+                  "metadata": {
+                    "lockupMetadataViewModel": {
+                      "title": { "content": "Blocked Video One" },
+                      "metadata": {
+                        "contentMetadataViewModel": {
+                          "metadataRows": [
+                            {
+                              "metadataParts": [
+                                {
+                                  "text": {
+                                    "content": "SomeBlockedChannel",
+                                    "commandRuns": [
+                                      {
+                                        "onTap": {
+                                          "innertubeCommand": {
+                                            "browseEndpoint": {
+                                              "canonicalBaseUrl": "/@SomeBlockedChannel"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "richItemRenderer": {
+              "content": {
+                "lockupViewModel": {
+                  "contentId": "whitelisted-video-2",
+                  "metadata": {
+                    "lockupMetadataViewModel": {
+                      "title": { "content": "Whitelisted Video Two" },
+                      "metadata": {
+                        "contentMetadataViewModel": {
+                          "metadataRows": [
+                            {
+                              "metadataParts": [
+                                {
+                                  "text": {
+                                    "content": "detectiveRust999",
+                                    "commandRuns": [
+                                      {
+                                        "onTap": {
+                                          "innertubeCommand": {
+                                            "browseEndpoint": {
+                                              "canonicalBaseUrl": "/@detectiveRust999"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "richItemRenderer": {
+              "content": {
+                "lockupViewModel": {
+                  "contentId": "blocked-video-2",
+                  "metadata": {
+                    "lockupMetadataViewModel": {
+                      "title": { "content": "Blocked Video Two" },
+                      "metadata": {
+                        "contentMetadataViewModel": {
+                          "metadataRows": [
+                            {
+                              "metadataParts": [
+                                {
+                                  "text": {
+                                    "content": "AnotherBlockedChannel",
+                                    "commandRuns": [
+                                      {
+                                        "onTap": {
+                                          "innertubeCommand": {
+                                            "browseEndpoint": {
+                                              "canonicalBaseUrl": "/@AnotherBlockedChannel"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
