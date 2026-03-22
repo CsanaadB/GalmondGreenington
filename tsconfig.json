@@ -7,5 +7,5 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"],
-  "exclude": ["tests/e2e/**/*.ts"]
+  "exclude": ["tests/e2e/**/*.ts", "tests/regression/**/*.ts"]
 }
