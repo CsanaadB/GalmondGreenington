@@ -11,3 +11,9 @@ await build({
   bundle: true,
   outfile: 'extension/intercept.js',
 });
+
+await build({
+  entryPoints: ['src/bridge.ts'],
+  bundle: true,
+  outfile: 'extension/bridge.js',
+});

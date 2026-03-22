@@ -4,11 +4,15 @@ interface BrowseAction {
   };
 }
 
-const WHITELIST = new Set([
-  '/@TheRealWalterWhiteOfficial1',
-  '/@detectiveRust999',
-  '/@captainAdama777',
-]);
+import { parseWhitelist } from './filter';
+
+let whitelist: Set<string> | null = null;
+
+window.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'greenington-whitelist') {
+    whitelist = parseWhitelist(event.data.text);
+  }
+});
 
 window.fetch = new Proxy(window.fetch, {
   async apply(target, thisArg, args) {
@@ -26,12 +30,12 @@ window.fetch = new Proxy(window.fetch, {
 
     const data = await response.json();
 
-    if (data.onResponseReceivedActions) {
+    if (data.onResponseReceivedActions && whitelist) {
       data.onResponseReceivedActions
         .forEach((action: BrowseAction) => {
           if (action.appendContinuationItemsAction) {
             action.appendContinuationItemsAction.continuationItems =
-              filterBrowseItems(action.appendContinuationItemsAction.continuationItems, WHITELIST);
+              filterBrowseItems(action.appendContinuationItemsAction.continuationItems, whitelist);
           }
         });
     }
