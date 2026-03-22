@@ -6,9 +6,7 @@ export default defineConfig({
     exclude: ['tests/e2e/**'],
     environment: 'happy-dom',
     typecheck: {
-      enabled: true,
-      include: ['tests/**/*.test.ts'],
-      exclude: ['tests/e2e/**'],
+      enabled: false,
     },
   },
 });

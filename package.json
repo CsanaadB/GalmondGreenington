@@ -8,7 +8,9 @@
     "test:unit": "vitest run tests/unit",
     "test:dom": "vitest run tests/dom",
     "test:e2e": "npm run build && playwright test",
+    "typecheck": "tsc --noEmit",
     "typecheck:e2e": "tsc --noEmit --project tsconfig.playwright.json",
+    "typecheck:all": "npm run typecheck && npm run typecheck:e2e",
     "lint": "eslint .",
     "test": "npm run test:unit && npm run test:dom && npm run test:e2e",
     "preview": "npm run build && chromium --load-extension=./extension --disable-extensions-except=./extension https://www.youtube.com"
