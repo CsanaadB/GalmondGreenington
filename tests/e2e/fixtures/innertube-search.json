@@ -1,0 +1,99 @@
+{
+  "responseContext": {},
+  "contents": {
+    "twoColumnSearchResultsRenderer": {
+      "primaryContents": {
+        "sectionListRenderer": {
+          "contents": [
+            {
+              "itemSectionRenderer": {
+                "contents": [
+                  {
+                    "videoRenderer": {
+                      "videoId": "whitelisted-search-1",
+                      "title": { "runs": [{ "text": "Whitelisted Search Video One" }] },
+                      "longBylineText": {
+                        "runs": [
+                          {
+                            "text": "TheRealWalterWhiteOfficial1",
+                            "navigationEndpoint": {
+                              "commandMetadata": {
+                                "webCommandMetadata": {
+                                  "url": "/@TheRealWalterWhiteOfficial1"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "videoRenderer": {
+                      "videoId": "blocked-search-1",
+                      "title": { "runs": [{ "text": "Blocked Search Video One" }] },
+                      "longBylineText": {
+                        "runs": [
+                          {
+                            "text": "SomeBlockedChannel",
+                            "navigationEndpoint": {
+                              "commandMetadata": {
+                                "webCommandMetadata": {
+                                  "url": "/@SomeBlockedChannel"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "videoRenderer": {
+                      "videoId": "whitelisted-search-2",
+                      "title": { "runs": [{ "text": "Whitelisted Search Video Two" }] },
+                      "longBylineText": {
+                        "runs": [
+                          {
+                            "text": "detectiveRust999",
+                            "navigationEndpoint": {
+                              "commandMetadata": {
+                                "webCommandMetadata": {
+                                  "url": "/@detectiveRust999"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "videoRenderer": {
+                      "videoId": "blocked-search-2",
+                      "title": { "runs": [{ "text": "Blocked Search Video Two" }] },
+                      "longBylineText": {
+                        "runs": [
+                          {
+                            "text": "AnotherBlockedChannel",
+                            "navigationEndpoint": {
+                              "commandMetadata": {
+                                "webCommandMetadata": {
+                                  "url": "/@AnotherBlockedChannel"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
