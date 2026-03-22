@@ -24,20 +24,38 @@ window.fetch = new Proxy(window.fetch, {
 
     const url = (args[0] instanceof Request) ? args[0].url : String(args[0]);
 
-    if (!url.includes('/youtubei/v1/browse')) {
+    const isBrowse = url.includes('/youtubei/v1/browse');
+    const isSearch = url.includes('/youtubei/v1/search');
+
+    if (!isBrowse && !isSearch) {
       return response;
     }
 
     const data = await response.json();
 
-    if (data.onResponseReceivedActions && whitelist) {
-      data.onResponseReceivedActions
-        .forEach((action: BrowseAction) => {
-          if (action.appendContinuationItemsAction) {
-            action.appendContinuationItemsAction.continuationItems =
-              filterBrowseItems(action.appendContinuationItemsAction.continuationItems, whitelist);
-          }
-        });
+    if (!whitelist) {
+      return response;
+    }
+
+    if (isBrowse && data.onResponseReceivedActions) {
+      for (const action of data.onResponseReceivedActions) {
+        if (action.appendContinuationItemsAction) {
+          action.appendContinuationItemsAction.continuationItems =
+            filterBrowseItems(action.appendContinuationItemsAction.continuationItems, whitelist);
+        }
+      }
+    }
+
+    if (isSearch && data.contents) {
+      const sections = data.contents.twoColumnSearchResultsRenderer
+        .primaryContents.sectionListRenderer.contents;
+
+      for (const section of sections) {
+        if (section.itemSectionRenderer) {
+          section.itemSectionRenderer.contents =
+            filterSearchItems(section.itemSectionRenderer.contents, whitelist);
+        }
+      }
     }
 
     return new Response(JSON.stringify(data), {
@@ -59,6 +77,26 @@ function getHandleFromLockupViewModel(lvm: any): string | null {
   } catch {
     return null;
   }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getHandleFromVideoRenderer(vr: any): string | null {
+  try {
+    return vr.longBylineText.runs[0].navigationEndpoint
+      .commandMetadata.webCommandMetadata.url;
+  } catch {
+    return null;
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function filterSearchItems(items: any[], whitelist: Set<string>): any[] {
+  return items.filter((item) => {
+    if (!item.videoRenderer) { return true; }
+
+    const handle = getHandleFromVideoRenderer(item.videoRenderer);
+    return handle !== null && whitelist.has(handle);
+  });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
