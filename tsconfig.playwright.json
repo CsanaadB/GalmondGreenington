@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["tests/e2e/**/*.ts", "tests/regression/**/*.ts", "playwright.config.ts"],
+  "exclude": []
+}
