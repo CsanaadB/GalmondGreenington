@@ -12,7 +12,7 @@
     "typecheck:e2e": "tsc --noEmit --project tsconfig.playwright.json",
     "typecheck:all": "npm run typecheck && npm run typecheck:e2e",
     "lint": "eslint .",
-    "test": "npm run test:unit && npm run test:dom && npm run test:e2e",
+    "test": "npm run lint && npm run typecheck:all && npm run test:unit && npm run test:dom && npm run test:e2e",
     "preview": "npm run build && chromium --load-extension=./extension --disable-extensions-except=./extension https://www.youtube.com"
   },
   "keywords": [],
