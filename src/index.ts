@@ -3,6 +3,7 @@ import {
   filterVideos,
   observeNewVideos,
   parseWhitelist,
+  toggleFiltering,
   waitForElement,
 } from './filter';
 
@@ -42,6 +43,13 @@ import {
       document.removeEventListener('yt-renderidom-finished', onRenderidomFinished);
     }, PLACEHOLDER_TIMEOUT_MS);
   }
+
+  // @ts-expect-error chrome is provided by the browser extension runtime
+  chrome.runtime.onMessage.addListener((message: { type: string }) => {
+    if (message.type === 'toggle-filtering') {
+      toggleFiltering(document);
+    }
+  });
 
   document.addEventListener('yt-navigate-finish', () => {
     videoObserver.disconnect();

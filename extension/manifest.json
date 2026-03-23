@@ -3,6 +3,9 @@
   "name": "greenington",
   "version": "0.1.0",
   "description": "The Whitelist. A browser extension that hides everything except whitelisted channels. Inspired by the AI slop epidemic. YouTube first, more platforms coming.",
+  "action": {
+    "default_popup": "popup.html"
+  },
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],

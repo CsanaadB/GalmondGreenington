@@ -1,9 +1,9 @@
-ytd-rich-item-renderer,
-ytd-video-renderer {
+html:not(.whitelisting-disabled) ytd-rich-item-renderer,
+html:not(.whitelisting-disabled) ytd-video-renderer {
   display: none !important;
 }
 
-ytd-rich-item-renderer[data-allowed],
-ytd-video-renderer[data-allowed] {
+html:not(.whitelisting-disabled) ytd-rich-item-renderer[data-allowed],
+html:not(.whitelisting-disabled) ytd-video-renderer[data-allowed] {
   display: block !important;
 }

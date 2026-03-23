@@ -68,6 +68,10 @@ export function watchForContentSwap(item: Element, originalHref: string, whiteli
   observer.observe(item, { childList: true, subtree: true, attributes: true });
 }
 
+export function toggleFiltering(document: Document): void {
+  document.documentElement.classList.toggle('whitelisting-disabled');
+}
+
 export function filterVideos(items: Iterable<Element>, whitelist: Set<string>): void {
   for (const item of items) {
     const link = item.querySelector('a[href^="/@"]');

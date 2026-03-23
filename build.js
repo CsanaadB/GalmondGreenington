@@ -17,3 +17,9 @@ await build({
   bundle: true,
   outfile: 'extension/bridge.js',
 });
+
+await build({
+  entryPoints: ['src/popup.ts'],
+  bundle: true,
+  outfile: 'extension/popup.js',
+});
