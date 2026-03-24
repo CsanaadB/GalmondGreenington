@@ -21,7 +21,6 @@ test('extension filters videos by whitelist on youtube homepage', async ({ page 
     );
     expect(await videos.count()).toBeGreaterThan(0);
     for (const video of await videos.all()) {
-      await expect(video).toHaveAttribute('data-allowed', '');
       await expect(video).toBeVisible();
     }
   }
@@ -75,28 +74,23 @@ test('extension filters dynamically added videos by whitelist', async ({ page })
 
   await page.goto('https://www.youtube.com/');
 
+  const allowedVideos = page.locator('ytd-rich-item-renderer[data-allowed]');
+  const initialCount = await allowedVideos.count();
+  await expect(initialCount).toBeGreaterThan(0);
+
   await page.locator('#contents').evaluate((el, videoElement) => {
     el.insertAdjacentHTML('beforeend', videoElement);
   }, videoTemplate('/@InjectedWhitelistedChannel1'));
 
-  const injected = page.locator(
-    'ytd-rich-item-renderer:has(a[href="/@InjectedWhitelistedChannel1"])'
-  );
-  await expect(injected).toHaveCount(3);
-  const lastVideo = injected.last();
-  await expect(lastVideo).toHaveAttribute('data-allowed', '');
-  await expect(lastVideo).toBeVisible();
+  await expect(allowedVideos).toHaveCount(initialCount + 1);
+  await expect(page.locator('ytd-rich-item-renderer:has(a[href="/@InjectedWhitelistedChannel1"])')).toBeVisible();
 
   await page.locator('#contents').evaluate((el, videoElement) => {
     el.insertAdjacentHTML('beforeend', videoElement);
   }, videoTemplate('/@InjectedNonWhitelistedChannel1'));
 
-  const injectedNonWhitelisted = page.locator(
-    'ytd-rich-item-renderer:has(a[href="/@InjectedNonWhitelistedChannel1"])'
-  );
-  await expect(injectedNonWhitelisted).toHaveCount(1);
-  await expect(injectedNonWhitelisted.first()).not.toHaveAttribute('data-allowed', '');
-  await expect(injectedNonWhitelisted.first()).not.toBeVisible();
+  await expect(allowedVideos).toHaveCount(initialCount + 1);
+  await expect(page.locator('ytd-rich-item-renderer:has(a[href="/@InjectedNonWhitelistedChannel1"])')).not.toBeVisible();
 });
 
 test('extension filters infinite scroll videos after late-loading #contents', async ({ page }) => {
@@ -117,29 +111,29 @@ test('extension filters infinite scroll videos after late-loading #contents', as
     document.body.appendChild(ytdApp);
   });
 
+  const allowedVideos = page.locator('ytd-rich-item-renderer[data-allowed]');
+
   await page.locator('#contents').evaluate((el, videoHtml) => {
     el.insertAdjacentHTML('beforeend', videoHtml);
   }, videoTemplate('/@InjectedWhitelistedChannel1'));
 
-  await expect(page.locator('ytd-rich-item-renderer').first()).toHaveAttribute('data-allowed', '');
+  await expect(allowedVideos).toHaveCount(1);
+  await expect(page.locator('ytd-rich-item-renderer:has(a[href="/@InjectedWhitelistedChannel1"])')).toBeVisible();
 
   await page.locator('#contents').evaluate((el, videoHtml) => {
     el.insertAdjacentHTML('beforeend', videoHtml);
   }, videoTemplate('/@InjectedWhitelistedChannel2'));
 
-  const scrolledWhitelisted = page.locator('ytd-rich-item-renderer:has(a[href="/@InjectedWhitelistedChannel2"])');
-  await expect(scrolledWhitelisted).toHaveCount(1);
-  await expect(scrolledWhitelisted.first()).toHaveAttribute('data-allowed', '');
-  await expect(scrolledWhitelisted.first()).toBeVisible();
+  await expect(allowedVideos).toHaveCount(2);
+  await expect(page.locator('ytd-rich-item-renderer:has(a[href="/@InjectedWhitelistedChannel2"])')).toBeVisible();
 
   await page.locator('#contents').evaluate((el, videoHtml) => {
     el.insertAdjacentHTML('beforeend', videoHtml);
   }, videoTemplate('/@InjectedNonWhitelistedChannel1'));
 
-  const scrolledNonWhitelisted = page.locator('ytd-rich-item-renderer:has(a[href="/@InjectedNonWhitelistedChannel1"])');
-  await expect(scrolledNonWhitelisted).toHaveCount(1);
-  await expect(scrolledNonWhitelisted.first()).not.toHaveAttribute('data-allowed', '');
-  await expect(scrolledNonWhitelisted.first()).not.toBeVisible();
+  await expect(allowedVideos).toHaveCount(2);
+  const nonWhitelisted = page.locator('ytd-rich-item-renderer:has(a[href="/@InjectedNonWhitelistedChannel1"])');
+  await expect(nonWhitelisted).not.toBeVisible();
 });
 
 test('extension filters empty shell videos once they get populated', async ({ page }) => {
@@ -164,7 +158,7 @@ test('extension filters empty shell videos once they get populated', async ({ pa
   });
 
   const videoShell = page.locator('ytd-rich-item-renderer');
-  await expect(videoShell).not.toHaveAttribute('data-allowed');
+  await expect(videoShell).not.toBeVisible();
 
   await videoShell.evaluate((el) => {
     el.innerHTML = `<div id="content">
@@ -174,7 +168,7 @@ test('extension filters empty shell videos once they get populated', async ({ pa
     document.dispatchEvent(new CustomEvent('yt-renderidom-finished', { bubbles: true }));
   });
 
-  await expect(videoShell).toHaveAttribute('data-allowed', '');
+  await expect(videoShell).toBeVisible();
 });
 
 test('extension hides all search result videos', async ({ page }) => {
@@ -220,7 +214,6 @@ test('extension filters dynamically added videos on search results', async ({ pa
   </ytd-video-renderer>`);
 
   const injectedVideo = page.locator('ytd-video-renderer');
-  await expect(injectedVideo).toHaveAttribute('data-allowed', '');
   await expect(injectedVideo).toBeVisible();
 });
 
@@ -258,7 +251,6 @@ test('extension resolves the correct #contents when multiple exist on search pag
   });
 
   const video = page.locator('ytd-video-renderer');
-  await expect(video).toHaveAttribute('data-allowed', '');
   await expect(video).toBeVisible();
 });
 
@@ -281,7 +273,6 @@ test('extension filters videos by whitelist on youtube search results', async ({
     );
     expect(await videos.count()).toBeGreaterThan(0);
     for (const video of await videos.all()) {
-      await expect(video).toHaveAttribute('data-allowed', '');
       await expect(video).toBeVisible();
     }
   }
@@ -326,10 +317,10 @@ test('extension filters videos after SPA navigation from homepage to search', as
     }));
   });
 
-  const searchVideo = page.locator(
+  const searchResultVideo = page.locator(
     'ytd-video-renderer:has(a[href="/@InjectedWhitelistedChannel1"])'
   );
-  await expect(searchVideo).toHaveAttribute('data-allowed', '');
+  await expect(searchResultVideo).toBeVisible();
 
   await page.locator('ytd-video-renderer').evaluate((existing) => {
     const parent = existing.parentElement;
@@ -347,7 +338,7 @@ test('extension filters videos after SPA navigation from homepage to search', as
   const scrolledVideo = page.locator(
     'ytd-video-renderer:has(a[href="/@InjectedWhitelistedChannel2"])'
   );
-  await expect(scrolledVideo).toHaveAttribute('data-allowed', '');
+  await expect(scrolledVideo).toBeVisible();
 
   await page.locator('ytd-video-renderer').first().evaluate((existing) => {
     const parent = existing.parentElement;
@@ -365,7 +356,6 @@ test('extension filters videos after SPA navigation from homepage to search', as
   const nonWhitelistedVideo = page.locator(
     'ytd-video-renderer:has(a[href="/@InjectedNonWhitelistedChannel1"])'
   );
-  await expect(nonWhitelistedVideo).not.toHaveAttribute('data-allowed');
   await expect(nonWhitelistedVideo).not.toBeVisible();
 
   await page.evaluate(() => {
@@ -390,7 +380,7 @@ test('extension filters videos after SPA navigation from homepage to search', as
   const videoAfterSecondNav = page.locator(
     'ytd-video-renderer:has(a[href="/@InjectedWhitelistedChannel3"])'
   );
-  await expect(videoAfterSecondNav).toHaveAttribute('data-allowed', '');
+  await expect(videoAfterSecondNav).toBeVisible();
 });
 
 test('extension filters search videos when DOM is built dynamically inside ytd-app', async ({ page }) => {
@@ -443,6 +433,5 @@ test('extension filters search videos when DOM is built dynamically inside ytd-a
   });
 
   const video = page.locator('ytd-video-renderer');
-  await expect(video).toHaveAttribute('data-allowed', '');
   await expect(video).toBeVisible();
 });

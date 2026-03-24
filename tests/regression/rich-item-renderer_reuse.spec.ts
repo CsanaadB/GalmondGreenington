@@ -27,6 +27,7 @@ test('data-allowed is removed when YouTube swaps a whitelisted video for a non-w
 
   const video = page.locator('ytd-rich-item-renderer');
   await expect(video).toHaveAttribute('data-allowed', '');
+  await expect(video).toBeVisible();
 
   await video.evaluate((el) => {
     const link = el.querySelector('a[href^="/@"]');
@@ -38,4 +39,5 @@ test('data-allowed is removed when YouTube swaps a whitelisted video for a non-w
   });
 
   await expect(video).not.toHaveAttribute('data-allowed');
+  await expect(video).not.toBeVisible();
 });

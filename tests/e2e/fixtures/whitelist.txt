@@ -1,3 +1,6 @@
 /@WhitelistedChannel1
 /@WhitelistedChannel2
 /@WhitelistedChannel3
+/@InjectedWhitelistedChannel1
+/@InjectedWhitelistedChannel2
+/@InjectedWhitelistedChannel3
