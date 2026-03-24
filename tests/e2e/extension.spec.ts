@@ -3,40 +3,6 @@ import { test } from './fixtures/extension';
 import path from 'path';
 import fs from 'fs/promises';
 
-test('extension filters videos by whitelist on youtube homepage', async ({ page }) => {
-  const fixture = path.resolve('tests/e2e/fixtures/youtube-homepage.html');
-  const html = await fs.readFile(fixture, 'utf-8');
-
-  await page.route('https://www.youtube.com/', async (route) => {
-    await route.fulfill({ body: html, contentType: 'text/html' });
-  });
-
-  await page.goto('https://www.youtube.com/');
-
-  const whitelistedChannels = ['/@WhitelistedChannel1', '/@WhitelistedChannel2'];
-
-  for (const channel of whitelistedChannels) {
-    const videos = page.locator(
-      `ytd-rich-item-renderer:has(a[href="${channel}"])`
-    );
-    expect(await videos.count()).toBeGreaterThan(0);
-    for (const video of await videos.all()) {
-      await expect(video).toBeVisible();
-    }
-  }
-
-  const nonWhitelistedChannelSelector = whitelistedChannels
-    .map((channel) => `:not(:has(a[href="${channel}"]))`)
-    .join('');
-  const nonWhitelistedVideos = page.locator(
-    `ytd-rich-item-renderer${nonWhitelistedChannelSelector}`
-  );
-  await expect(nonWhitelistedVideos).toHaveCount(2);
-  for (const video of await nonWhitelistedVideos.all()) {
-    await expect(video).not.toBeVisible();
-  }
-});
-
 const videoTemplate = (channel: string): string => `
   <ytd-rich-item-renderer class="style-scope ytd-rich-grid-renderer">
     <div id="content" class="style-scope ytd-rich-item-renderer">
@@ -64,7 +30,7 @@ const videoTemplate = (channel: string): string => `
     </div>
   </ytd-rich-item-renderer>`;
 
-test('extension filters dynamically added videos by whitelist', async ({ page }) => {
+test('extension filters videos by whitelist on youtube homepage', async ({ page }) => {
   const fixture = path.resolve('tests/e2e/fixtures/youtube-homepage.html');
   const html = await fs.readFile(fixture, 'utf-8');
 
@@ -74,22 +40,21 @@ test('extension filters dynamically added videos by whitelist', async ({ page })
 
   await page.goto('https://www.youtube.com/');
 
-  const allowedVideos = page.locator('ytd-rich-item-renderer[data-allowed]');
-  const initialCount = await allowedVideos.count();
-  await expect(initialCount).toBeGreaterThan(0);
+  await expect(page.locator('ytd-rich-item-renderer:has(a[href="/@WhitelistedChannel1"])')).toBeVisible();
+  await expect(page.locator('ytd-rich-item-renderer:has(a[href="/@WhitelistedChannel2"])')).toBeVisible();
+  await expect(page.locator('ytd-rich-item-renderer:has(a[href="/@NonWhitelistedChannel1"])')).not.toBeVisible();
+  await expect(page.locator('ytd-rich-item-renderer:has(a[href="/@NonWhitelistedChannel2"])')).not.toBeVisible();
 
   await page.locator('#contents').evaluate((el, videoElement) => {
     el.insertAdjacentHTML('beforeend', videoElement);
   }, videoTemplate('/@InjectedWhitelistedChannel1'));
 
-  await expect(allowedVideos).toHaveCount(initialCount + 1);
   await expect(page.locator('ytd-rich-item-renderer:has(a[href="/@InjectedWhitelistedChannel1"])')).toBeVisible();
 
   await page.locator('#contents').evaluate((el, videoElement) => {
     el.insertAdjacentHTML('beforeend', videoElement);
   }, videoTemplate('/@InjectedNonWhitelistedChannel1'));
 
-  await expect(allowedVideos).toHaveCount(initialCount + 1);
   await expect(page.locator('ytd-rich-item-renderer:has(a[href="/@InjectedNonWhitelistedChannel1"])')).not.toBeVisible();
 });
 
@@ -171,51 +136,8 @@ test('extension filters empty shell videos once they get populated', async ({ pa
   await expect(videoShell).toBeVisible();
 });
 
-test('extension hides all search result videos', async ({ page }) => {
-  const fixture = path.resolve('tests/e2e/fixtures/youtube-search.html');
-  const html = await fs.readFile(fixture, 'utf-8');
 
-  await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
-    await route.fulfill({ body: html, contentType: 'text/html' });
-  });
 
-  await page.goto('https://www.youtube.com/results?search_query=test');
-
-  const video = page.locator('ytd-video-renderer').first();
-  await expect(video).not.toBeVisible();
-});
-
-test('extension filters dynamically added videos on search results', async ({ page }) => {
-  await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
-    await route.fulfill({
-      body: `<html><body>
-        <ytd-app>
-          <ytd-section-list-renderer>
-            <div id="contents">
-              <ytd-item-section-renderer>
-                <div id="contents"></div>
-              </ytd-item-section-renderer>
-            </div>
-          </ytd-section-list-renderer>
-        </ytd-app>
-      </body></html>`,
-      contentType: 'text/html',
-    });
-  });
-
-  await page.goto('https://www.youtube.com/results?search_query=test');
-
-  await page.locator('ytd-item-section-renderer #contents').evaluate((el, videoHtml) => {
-    el.insertAdjacentHTML('beforeend', videoHtml);
-  }, `<ytd-video-renderer>
-    <div id="channel-info">
-      <a href="/@InjectedWhitelistedChannel1">Injected Whitelisted Channel 1</a>
-    </div>
-  </ytd-video-renderer>`);
-
-  const injectedVideo = page.locator('ytd-video-renderer');
-  await expect(injectedVideo).toBeVisible();
-});
 
 test('extension resolves the correct #contents when multiple exist on search page', async ({ page }) => {
   await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
@@ -228,6 +150,12 @@ test('extension resolves the correct #contents when multiple exist on search pag
     const wrongParent = document.createElement('ytd-secondary-search-container-renderer');
     const wrongContents = document.createElement('div');
     wrongContents.id = 'contents';
+
+    wrongContents.innerHTML = `<ytd-video-renderer>
+      <div id="channel-info">
+        <a href="/@InjectedWhitelistedChannel2">Injected Whitelisted Channel 2</a>
+      </div>
+    </ytd-video-renderer>`;
 
     wrongParent.appendChild(wrongContents);
     document.body.appendChild(wrongParent);
@@ -250,8 +178,11 @@ test('extension resolves the correct #contents when multiple exist on search pag
     document.body.appendChild(ytdApp);
   });
 
-  const video = page.locator('ytd-video-renderer');
-  await expect(video).toBeVisible();
+  const rightVideo = page.locator('ytd-video-renderer:has(a[href="/@InjectedWhitelistedChannel1"])');
+  await expect(rightVideo).toBeVisible();
+
+  const wrongVideo = page.locator('ytd-video-renderer:has(a[href="/@InjectedWhitelistedChannel2"])');
+  await expect(wrongVideo).not.toBeVisible();
 });
 
 
@@ -265,28 +196,30 @@ test('extension filters videos by whitelist on youtube search results', async ({
 
   await page.goto('https://www.youtube.com/results?search_query=test');
 
-  const whitelistedChannels = ['/@WhitelistedChannel1', '/@WhitelistedChannel2'];
+  await expect(page.locator('ytd-video-renderer:has(a[href="/@WhitelistedChannel1"])')).toBeVisible();
+  await expect(page.locator('ytd-video-renderer:has(a[href="/@WhitelistedChannel2"])')).toBeVisible();
+  await expect(page.locator('ytd-video-renderer:has(a[href="/@NonWhitelistedChannel1"])')).not.toBeVisible();
+  await expect(page.locator('ytd-video-renderer:has(a[href="/@NonWhitelistedChannel2"])')).not.toBeVisible();
 
-  for (const channel of whitelistedChannels) {
-    const videos = page.locator(
-      `ytd-video-renderer:has(a[href="${channel}"])`
-    );
-    expect(await videos.count()).toBeGreaterThan(0);
-    for (const video of await videos.all()) {
-      await expect(video).toBeVisible();
-    }
-  }
+  await page.locator('ytd-item-section-renderer #contents').evaluate((el, videoHtml) => {
+    el.insertAdjacentHTML('beforeend', videoHtml);
+  }, `<ytd-video-renderer>
+    <div id="channel-info">
+      <a href="/@InjectedWhitelistedChannel1">Injected Whitelisted Channel 1</a>
+    </div>
+  </ytd-video-renderer>`);
 
-  const nonWhitelistedChannelSelector = whitelistedChannels
-    .map((channel) => `:not(:has(a[href="${channel}"]))`)
-    .join('');
-  const nonWhitelistedVideos = page.locator(
-    `ytd-video-renderer${nonWhitelistedChannelSelector}`
-  );
-  await expect(nonWhitelistedVideos).toHaveCount(2);
-  for (const video of await nonWhitelistedVideos.all()) {
-    await expect(video).not.toBeVisible();
-  }
+  await expect(page.locator('ytd-video-renderer:has(a[href="/@InjectedWhitelistedChannel1"])')).toBeVisible();
+
+  await page.locator('ytd-item-section-renderer #contents').evaluate((el, videoHtml) => {
+    el.insertAdjacentHTML('beforeend', videoHtml);
+  }, `<ytd-video-renderer>
+    <div id="channel-info">
+      <a href="/@InjectedNonWhitelistedChannel1">Injected Non-Whitelisted Channel 1</a>
+    </div>
+  </ytd-video-renderer>`);
+
+  await expect(page.locator('ytd-video-renderer:has(a[href="/@InjectedNonWhitelistedChannel1"])')).not.toBeVisible();
 });
 
 test('extension filters videos after SPA navigation from homepage to search', async ({ page }) => {

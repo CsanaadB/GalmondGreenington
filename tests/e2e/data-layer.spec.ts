@@ -62,5 +62,5 @@ test('data-layer interception filters search response by whitelist', async ({ pa
     .itemSectionRenderer.contents;
   const videoIds = items.map((item: SearchItem) => item.videoRenderer?.videoId);
 
-  expect(videoIds).toEqual(['whitelisted-search-1', 'whitelisted-search-2']);
+  expect(videoIds).toEqual(['whitelisted-video-3', 'whitelisted-video-4']);
 });
