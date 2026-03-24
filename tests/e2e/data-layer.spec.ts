@@ -5,10 +5,10 @@ import path from 'path';
 import fs from 'fs/promises';
 
 test('data-layer interception filters browse response by whitelist', async ({ page }) => {
-  const shell = await fs.readFile(path.resolve('tests/e2e/fixtures/youtube-shell.html'), 'utf-8');
+  const placeholder =await fs.readFile(path.resolve('tests/e2e/fixtures/youtube-video-placeholder.html'), 'utf-8');
 
   await page.route('https://www.youtube.com/', async (route) => {
-    await route.fulfill({ body: shell, contentType: 'text/html' });
+    await route.fulfill({ body: placeholder, contentType: 'text/html' });
   });
 
   const browseFixture = await fs.readFile(path.resolve('tests/e2e/fixtures/innertube-browse.json'), 'utf-8');
@@ -35,10 +35,10 @@ test('data-layer interception filters browse response by whitelist', async ({ pa
 });
 
 test('data-layer interception filters search response by whitelist', async ({ page }) => {
-  const shell = await fs.readFile(path.resolve('tests/e2e/fixtures/youtube-shell.html'), 'utf-8');
+  const placeholder =await fs.readFile(path.resolve('tests/e2e/fixtures/youtube-video-placeholder.html'), 'utf-8');
 
   await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
-    await route.fulfill({ body: shell, contentType: 'text/html' });
+    await route.fulfill({ body: placeholder, contentType: 'text/html' });
   });
 
   const searchFixture = await fs.readFile(path.resolve('tests/e2e/fixtures/innertube-search.json'), 'utf-8');

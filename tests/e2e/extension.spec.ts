@@ -101,7 +101,7 @@ test('extension filters infinite scroll videos after late-loading #contents', as
   await expect(nonWhitelisted).not.toBeVisible();
 });
 
-test('extension filters empty shell videos once they get populated', async ({ page }) => {
+test('extension filters video placeholders once they get populated', async ({ page }) => {
   await page.route('https://www.youtube.com/', async (route) => {
     await route.fulfill({ body: '<html><body></body></html>', contentType: 'text/html' });
   });
@@ -114,18 +114,18 @@ test('extension filters empty shell videos once they get populated', async ({ pa
     const contents = document.createElement('div');
     contents.id = 'contents';
 
-    const shell = document.createElement('ytd-rich-item-renderer');
-    contents.appendChild(shell);
+    const placeholder = document.createElement('ytd-rich-item-renderer');
+    contents.appendChild(placeholder);
 
     richGrid.appendChild(contents);
     ytdApp.appendChild(richGrid);
     document.body.appendChild(ytdApp);
   });
 
-  const videoShell = page.locator('ytd-rich-item-renderer');
-  await expect(videoShell).not.toBeVisible();
+  const videoPlaceholder = page.locator('ytd-rich-item-renderer');
+  await expect(videoPlaceholder).not.toBeVisible();
 
-  await videoShell.evaluate((el) => {
+  await videoPlaceholder.evaluate((el) => {
     el.innerHTML = `<div id="content">
       <a href="/@InjectedWhitelistedChannel1">Injected Whitelisted Channel 1</a>
     </div>`;
@@ -133,7 +133,7 @@ test('extension filters empty shell videos once they get populated', async ({ pa
     document.dispatchEvent(new CustomEvent('yt-renderidom-finished', { bubbles: true }));
   });
 
-  await expect(videoShell).toBeVisible();
+  await expect(videoPlaceholder).toBeVisible();
 });
 
 
@@ -317,7 +317,7 @@ test('extension filters videos after SPA navigation from homepage to search', as
 });
 
 test('extension filters search videos when DOM is built dynamically inside ytd-app', async ({ page }) => {
-  const fixture = path.resolve('tests/e2e/fixtures/youtube-shell.html');
+  const fixture = path.resolve('tests/e2e/fixtures/youtube-video-placeholder.html');
   const html = await fs.readFile(fixture, 'utf-8');
 
   await page.route('https://www.youtube.com/results?search_query=test', async (route) => {
