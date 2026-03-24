@@ -9,10 +9,10 @@ test('observeNewVideos filters whitelisted videos added to the container', async
   const video = document.createElement('ytd-rich-item-renderer');
   const link = document.createElement('a');
 
-  link.setAttribute('href', '/@whitelisted-channel');
+  link.setAttribute('href', '/@WhitelistedChannel1');
   video.appendChild(link);
 
-  const whitelist = new Set(['/@whitelisted-channel']);
+  const whitelist = new Set(['/@WhitelistedChannel1']);
   const container = document.createElement('div');
   observeNewVideos(container, whitelist);
 
@@ -24,7 +24,7 @@ test('observeNewVideos filters whitelisted videos added to the container', async
 
 test('observeNewVideos does not mark non-whitelisted videos', async () => {
   const video = document.createElement('ytd-rich-item-renderer');
-  const whitelist = new Set(['/@whitelisted-channel']);
+  const whitelist = new Set(['/@WhitelistedChannel1']);
   const container = document.createElement('div');
 
   observeNewVideos(container, whitelist);
@@ -39,10 +39,10 @@ test('observeNewVideos ignores non-video elements', async () => {
   const nonVideo = document.createElement('div');
   const link = document.createElement('a');
 
-  link.setAttribute('href', '/@whitelisted-channel');
+  link.setAttribute('href', '/@WhitelistedChannel1');
   nonVideo.appendChild(link);
 
-  const whitelist = new Set(['/@whitelisted-channel']);
+  const whitelist = new Set(['/@WhitelistedChannel1']);
   const container = document.createElement('div');
   observeNewVideos(container, whitelist);
 
@@ -55,14 +55,14 @@ test('observeNewVideos ignores non-video elements', async () => {
 test('watchForContentSwap removes data-allowed when channel link changes', async () => {
   const video = document.createElement('ytd-rich-item-renderer');
   const link = document.createElement('a');
-  link.setAttribute('href', '/@whitelisted-channel');
+  link.setAttribute('href', '/@WhitelistedChannel1');
   video.appendChild(link);
   video.toggleAttribute('data-allowed', true);
 
-  const whitelist = new Set(['/@whitelisted-channel']);
-  watchForContentSwap(video, '/@whitelisted-channel', whitelist);
+  const whitelist = new Set(['/@WhitelistedChannel1']);
+  watchForContentSwap(video, '/@WhitelistedChannel1', whitelist);
 
-  link.setAttribute('href', '/@non-whitelisted-channel');
+  link.setAttribute('href', '/@NonWhitelistedChannel1');
   await Promise.resolve();
 
   expect(video.hasAttribute('data-allowed')).toBe(false);

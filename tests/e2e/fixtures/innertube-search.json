@@ -10,16 +10,16 @@
                 "contents": [
                   {
                     "videoRenderer": {
-                      "videoId": "whitelisted-search-1",
-                      "title": { "runs": [{ "text": "Whitelisted Search Video One" }] },
+                      "videoId": "whitelisted-video-3",
+                      "title": { "runs": [{ "text": "Whitelisted Channel 1 Search Video" }] },
                       "longBylineText": {
                         "runs": [
                           {
-                            "text": "TheRealWalterWhiteOfficial1",
+                            "text": "WhitelistedChannel1",
                             "navigationEndpoint": {
                               "commandMetadata": {
                                 "webCommandMetadata": {
-                                  "url": "/@TheRealWalterWhiteOfficial1"
+                                  "url": "/@WhitelistedChannel1"
                                 }
                               }
                             }
@@ -30,16 +30,16 @@
                   },
                   {
                     "videoRenderer": {
-                      "videoId": "blocked-search-1",
-                      "title": { "runs": [{ "text": "Blocked Search Video One" }] },
+                      "videoId": "non-whitelisted-video-3",
+                      "title": { "runs": [{ "text": "Non-Whitelisted Channel 1 Search Video" }] },
                       "longBylineText": {
                         "runs": [
                           {
-                            "text": "SomeBlockedChannel",
+                            "text": "NonWhitelistedChannel1",
                             "navigationEndpoint": {
                               "commandMetadata": {
                                 "webCommandMetadata": {
-                                  "url": "/@SomeBlockedChannel"
+                                  "url": "/@NonWhitelistedChannel1"
                                 }
                               }
                             }
@@ -50,16 +50,16 @@
                   },
                   {
                     "videoRenderer": {
-                      "videoId": "whitelisted-search-2",
-                      "title": { "runs": [{ "text": "Whitelisted Search Video Two" }] },
+                      "videoId": "whitelisted-video-4",
+                      "title": { "runs": [{ "text": "Whitelisted Channel 2 Search Video" }] },
                       "longBylineText": {
                         "runs": [
                           {
-                            "text": "detectiveRust999",
+                            "text": "WhitelistedChannel2",
                             "navigationEndpoint": {
                               "commandMetadata": {
                                 "webCommandMetadata": {
-                                  "url": "/@detectiveRust999"
+                                  "url": "/@WhitelistedChannel2"
                                 }
                               }
                             }
@@ -70,16 +70,16 @@
                   },
                   {
                     "videoRenderer": {
-                      "videoId": "blocked-search-2",
-                      "title": { "runs": [{ "text": "Blocked Search Video Two" }] },
+                      "videoId": "non-whitelisted-video-4",
+                      "title": { "runs": [{ "text": "Non-Whitelisted Channel 2 Search Video" }] },
                       "longBylineText": {
                         "runs": [
                           {
-                            "text": "AnotherBlockedChannel",
+                            "text": "NonWhitelistedChannel2",
                             "navigationEndpoint": {
                               "commandMetadata": {
                                 "webCommandMetadata": {
-                                  "url": "/@AnotherBlockedChannel"
+                                  "url": "/@NonWhitelistedChannel2"
                                 }
                               }
                             }

@@ -13,7 +13,7 @@ test('extension filters videos by whitelist on youtube homepage', async ({ page 
 
   await page.goto('https://www.youtube.com/');
 
-  const whitelistedChannels = ['/@TheRealWalterWhiteOfficial1', '/@detectiveRust999'];
+  const whitelistedChannels = ['/@WhitelistedChannel1', '/@WhitelistedChannel2'];
 
   for (const channel of whitelistedChannels) {
     const videos = page.locator(
@@ -26,14 +26,14 @@ test('extension filters videos by whitelist on youtube homepage', async ({ page 
     }
   }
 
-  const blockedChannelSelector = whitelistedChannels
+  const nonWhitelistedChannelSelector = whitelistedChannels
     .map((channel) => `:not(:has(a[href="${channel}"]))`)
     .join('');
-  const blockedVideos = page.locator(
-    `ytd-rich-item-renderer${blockedChannelSelector}`
+  const nonWhitelistedVideos = page.locator(
+    `ytd-rich-item-renderer${nonWhitelistedChannelSelector}`
   );
-  await expect(blockedVideos).toHaveCount(2);
-  for (const video of await blockedVideos.all()) {
+  await expect(nonWhitelistedVideos).toHaveCount(2);
+  for (const video of await nonWhitelistedVideos.all()) {
     await expect(video).not.toBeVisible();
   }
 });
@@ -77,10 +77,10 @@ test('extension filters dynamically added videos by whitelist', async ({ page })
 
   await page.locator('#contents').evaluate((el, videoElement) => {
     el.insertAdjacentHTML('beforeend', videoElement);
-  }, videoTemplate('/@TheRealWalterWhiteOfficial1'));
+  }, videoTemplate('/@InjectedWhitelistedChannel1'));
 
   const injected = page.locator(
-    'ytd-rich-item-renderer:has(a[href="/@TheRealWalterWhiteOfficial1"])'
+    'ytd-rich-item-renderer:has(a[href="/@InjectedWhitelistedChannel1"])'
   );
   await expect(injected).toHaveCount(3);
   const lastVideo = injected.last();
@@ -89,14 +89,14 @@ test('extension filters dynamically added videos by whitelist', async ({ page })
 
   await page.locator('#contents').evaluate((el, videoElement) => {
     el.insertAdjacentHTML('beforeend', videoElement);
-  }, videoTemplate('/@SomeBlockedChannel'));
+  }, videoTemplate('/@InjectedNonWhitelistedChannel1'));
 
-  const blockedVideo = page.locator(
-    'ytd-rich-item-renderer:has(a[href="/@SomeBlockedChannel"])'
+  const injectedNonWhitelisted = page.locator(
+    'ytd-rich-item-renderer:has(a[href="/@InjectedNonWhitelistedChannel1"])'
   );
-  await expect(blockedVideo).toHaveCount(1);
-  await expect(blockedVideo.first()).not.toHaveAttribute('data-allowed', '');
-  await expect(blockedVideo.first()).not.toBeVisible();
+  await expect(injectedNonWhitelisted).toHaveCount(1);
+  await expect(injectedNonWhitelisted.first()).not.toHaveAttribute('data-allowed', '');
+  await expect(injectedNonWhitelisted.first()).not.toBeVisible();
 });
 
 test('extension filters infinite scroll videos after late-loading #contents', async ({ page }) => {
@@ -119,27 +119,27 @@ test('extension filters infinite scroll videos after late-loading #contents', as
 
   await page.locator('#contents').evaluate((el, videoHtml) => {
     el.insertAdjacentHTML('beforeend', videoHtml);
-  }, videoTemplate('/@TheRealWalterWhiteOfficial1'));
+  }, videoTemplate('/@InjectedWhitelistedChannel1'));
 
   await expect(page.locator('ytd-rich-item-renderer').first()).toHaveAttribute('data-allowed', '');
 
   await page.locator('#contents').evaluate((el, videoHtml) => {
     el.insertAdjacentHTML('beforeend', videoHtml);
-  }, videoTemplate('/@detectiveRust999'));
+  }, videoTemplate('/@InjectedWhitelistedChannel2'));
 
-  const scrolledWhitelisted = page.locator('ytd-rich-item-renderer:has(a[href="/@detectiveRust999"])');
+  const scrolledWhitelisted = page.locator('ytd-rich-item-renderer:has(a[href="/@InjectedWhitelistedChannel2"])');
   await expect(scrolledWhitelisted).toHaveCount(1);
   await expect(scrolledWhitelisted.first()).toHaveAttribute('data-allowed', '');
   await expect(scrolledWhitelisted.first()).toBeVisible();
 
   await page.locator('#contents').evaluate((el, videoHtml) => {
     el.insertAdjacentHTML('beforeend', videoHtml);
-  }, videoTemplate('/@SomeBlockedChannel'));
+  }, videoTemplate('/@InjectedNonWhitelistedChannel1'));
 
-  const scrolledBlocked = page.locator('ytd-rich-item-renderer:has(a[href="/@SomeBlockedChannel"])');
-  await expect(scrolledBlocked).toHaveCount(1);
-  await expect(scrolledBlocked.first()).not.toHaveAttribute('data-allowed', '');
-  await expect(scrolledBlocked.first()).not.toBeVisible();
+  const scrolledNonWhitelisted = page.locator('ytd-rich-item-renderer:has(a[href="/@InjectedNonWhitelistedChannel1"])');
+  await expect(scrolledNonWhitelisted).toHaveCount(1);
+  await expect(scrolledNonWhitelisted.first()).not.toHaveAttribute('data-allowed', '');
+  await expect(scrolledNonWhitelisted.first()).not.toBeVisible();
 });
 
 test('extension filters empty shell videos once they get populated', async ({ page }) => {
@@ -168,7 +168,7 @@ test('extension filters empty shell videos once they get populated', async ({ pa
 
   await videoShell.evaluate((el) => {
     el.innerHTML = `<div id="content">
-      <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
+      <a href="/@InjectedWhitelistedChannel1">Injected Whitelisted Channel 1</a>
     </div>`;
 
     document.dispatchEvent(new CustomEvent('yt-renderidom-finished', { bubbles: true }));
@@ -215,7 +215,7 @@ test('extension filters dynamically added videos on search results', async ({ pa
     el.insertAdjacentHTML('beforeend', videoHtml);
   }, `<ytd-video-renderer>
     <div id="channel-info">
-      <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
+      <a href="/@InjectedWhitelistedChannel1">Injected Whitelisted Channel 1</a>
     </div>
   </ytd-video-renderer>`);
 
@@ -248,7 +248,7 @@ test('extension resolves the correct #contents when multiple exist on search pag
 
     rightContents.innerHTML = `<ytd-video-renderer>
       <div id="channel-info">
-        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
+        <a href="/@InjectedWhitelistedChannel1">Injected Whitelisted Channel 1</a>
       </div>
     </ytd-video-renderer>`;
 
@@ -273,7 +273,7 @@ test('extension filters videos by whitelist on youtube search results', async ({
 
   await page.goto('https://www.youtube.com/results?search_query=test');
 
-  const whitelistedChannels = ['/@TheRealWalterWhiteOfficial1', '/@detectiveRust999'];
+  const whitelistedChannels = ['/@WhitelistedChannel1', '/@WhitelistedChannel2'];
 
   for (const channel of whitelistedChannels) {
     const videos = page.locator(
@@ -286,14 +286,14 @@ test('extension filters videos by whitelist on youtube search results', async ({
     }
   }
 
-  const blockedChannelSelector = whitelistedChannels
+  const nonWhitelistedChannelSelector = whitelistedChannels
     .map((channel) => `:not(:has(a[href="${channel}"]))`)
     .join('');
-  const blockedVideos = page.locator(
-    `ytd-video-renderer${blockedChannelSelector}`
+  const nonWhitelistedVideos = page.locator(
+    `ytd-video-renderer${nonWhitelistedChannelSelector}`
   );
-  await expect(blockedVideos).toHaveCount(2);
-  for (const video of await blockedVideos.all()) {
+  await expect(nonWhitelistedVideos).toHaveCount(2);
+  for (const video of await nonWhitelistedVideos.all()) {
     await expect(video).not.toBeVisible();
   }
 });
@@ -314,7 +314,7 @@ test('extension filters videos after SPA navigation from homepage to search', as
 
     contents.innerHTML = `<ytd-video-renderer>
       <div id="channel-info">
-        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
+        <a href="/@InjectedWhitelistedChannel1">Injected Whitelisted Channel 1</a>
       </div>
     </ytd-video-renderer>`;
 
@@ -327,7 +327,7 @@ test('extension filters videos after SPA navigation from homepage to search', as
   });
 
   const searchVideo = page.locator(
-    'ytd-video-renderer:has(a[href="/@TheRealWalterWhiteOfficial1"])'
+    'ytd-video-renderer:has(a[href="/@InjectedWhitelistedChannel1"])'
   );
   await expect(searchVideo).toHaveAttribute('data-allowed', '');
 
@@ -339,13 +339,13 @@ test('extension filters videos after SPA navigation from homepage to search', as
 
     parent.insertAdjacentHTML('beforeend', `<ytd-video-renderer>
       <div id="channel-info">
-        <a href="/@detectiveRust999">detectiveRust999</a>
+        <a href="/@InjectedWhitelistedChannel2">Injected Whitelisted Channel 2</a>
       </div>
     </ytd-video-renderer>`);
   });
 
   const scrolledVideo = page.locator(
-    'ytd-video-renderer:has(a[href="/@detectiveRust999"])'
+    'ytd-video-renderer:has(a[href="/@InjectedWhitelistedChannel2"])'
   );
   await expect(scrolledVideo).toHaveAttribute('data-allowed', '');
 
@@ -357,16 +357,16 @@ test('extension filters videos after SPA navigation from homepage to search', as
 
     parent.insertAdjacentHTML('beforeend', `<ytd-video-renderer>
       <div id="channel-info">
-        <a href="/@SomeBlockedChannel">SomeBlockedChannel</a>
+        <a href="/@InjectedNonWhitelistedChannel1">Injected Non-Whitelisted Channel 1</a>
       </div>
     </ytd-video-renderer>`);
   });
 
-  const blockedVideo = page.locator(
-    'ytd-video-renderer:has(a[href="/@SomeBlockedChannel"])'
+  const nonWhitelistedVideo = page.locator(
+    'ytd-video-renderer:has(a[href="/@InjectedNonWhitelistedChannel1"])'
   );
-  await expect(blockedVideo).not.toHaveAttribute('data-allowed');
-  await expect(blockedVideo).not.toBeVisible();
+  await expect(nonWhitelistedVideo).not.toHaveAttribute('data-allowed');
+  await expect(nonWhitelistedVideo).not.toBeVisible();
 
   await page.evaluate(() => {
     document.dispatchEvent(new CustomEvent('yt-navigate-finish', {
@@ -382,13 +382,13 @@ test('extension filters videos after SPA navigation from homepage to search', as
 
     parent.insertAdjacentHTML('beforeend', `<ytd-video-renderer>
       <div id="channel-info">
-        <a href="/@captainAdama777">captainAdama777</a>
+        <a href="/@InjectedWhitelistedChannel3">Injected Whitelisted Channel 3</a>
       </div>
     </ytd-video-renderer>`);
   });
 
   const videoAfterSecondNav = page.locator(
-    'ytd-video-renderer:has(a[href="/@captainAdama777"])'
+    'ytd-video-renderer:has(a[href="/@InjectedWhitelistedChannel3"])'
   );
   await expect(videoAfterSecondNav).toHaveAttribute('data-allowed', '');
 });
@@ -426,7 +426,7 @@ test('extension filters search videos when DOM is built dynamically inside ytd-a
 
     innerContents.innerHTML = `<ytd-video-renderer>
       <div id="channel-info">
-        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
+        <a href="/@InjectedWhitelistedChannel1">Injected Whitelisted Channel 1</a>
       </div>
     </ytd-video-renderer>`;
 

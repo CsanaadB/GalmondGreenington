@@ -16,7 +16,7 @@ test('data-allowed is removed when YouTube swaps a whitelisted video for a non-w
 
     contents.innerHTML = `<ytd-rich-item-renderer>
       <div id="content">
-        <a href="/@TheRealWalterWhiteOfficial1">TheRealWalterWhiteOfficial1</a>
+        <a href="/@InjectedWhitelistedChannel1">Injected Whitelisted Channel 1</a>
       </div>
     </ytd-rich-item-renderer>`;
 
@@ -33,8 +33,8 @@ test('data-allowed is removed when YouTube swaps a whitelisted video for a non-w
     if (!link) {
       throw new Error('link not found');
     }
-    link.setAttribute('href', '/@SomeNonWhitelistedChannel');
-    link.textContent = 'SomeNonWhitelistedChannel';
+    link.setAttribute('href', '/@InjectedNonWhitelistedChannel1');
+    link.textContent = 'Injected Non-Whitelisted Channel 1';
   });
 
   await expect(video).not.toHaveAttribute('data-allowed');

@@ -18,10 +18,10 @@ test('toggle button in popup reveals filtered videos', async ({ context, page })
 
   await page.goto('https://www.youtube.com/');
 
-  const whitelisted = page.locator('ytd-rich-item-renderer:has(a[href="/@TheRealWalterWhiteOfficial1"])').first();
+  const whitelisted = page.locator('ytd-rich-item-renderer:has(a[href="/@WhitelistedChannel1"])').first();
   await expect(whitelisted).toBeVisible();
 
-  const filtered = page.locator('ytd-rich-item-renderer:has(a[href="/@TheExCorellianEngineer314159"])');
+  const filtered = page.locator('ytd-rich-item-renderer:has(a[href="/@NonWhitelistedChannel1"])');
   await expect(filtered).not.toBeVisible();
 
   if (!extensionId) {

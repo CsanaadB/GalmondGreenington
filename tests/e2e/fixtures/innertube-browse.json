@@ -11,7 +11,7 @@
                   "contentId": "whitelisted-video-1",
                   "metadata": {
                     "lockupMetadataViewModel": {
-                      "title": { "content": "Whitelisted Video One" },
+                      "title": { "content": "Whitelisted Channel 1 Video 1" },
                       "metadata": {
                         "contentMetadataViewModel": {
                           "metadataRows": [
@@ -19,13 +19,13 @@
                               "metadataParts": [
                                 {
                                   "text": {
-                                    "content": "TheRealWalterWhiteOfficial1",
+                                    "content": "WhitelistedChannel1",
                                     "commandRuns": [
                                       {
                                         "onTap": {
                                           "innertubeCommand": {
                                             "browseEndpoint": {
-                                              "canonicalBaseUrl": "/@TheRealWalterWhiteOfficial1"
+                                              "canonicalBaseUrl": "/@WhitelistedChannel1"
                                             }
                                           }
                                         }
@@ -48,10 +48,10 @@
             "richItemRenderer": {
               "content": {
                 "lockupViewModel": {
-                  "contentId": "blocked-video-1",
+                  "contentId": "non-whitelisted-video-1",
                   "metadata": {
                     "lockupMetadataViewModel": {
-                      "title": { "content": "Blocked Video One" },
+                      "title": { "content": "Non-Whitelisted Channel 1 Video" },
                       "metadata": {
                         "contentMetadataViewModel": {
                           "metadataRows": [
@@ -59,13 +59,13 @@
                               "metadataParts": [
                                 {
                                   "text": {
-                                    "content": "SomeBlockedChannel",
+                                    "content": "NonWhitelistedChannel1",
                                     "commandRuns": [
                                       {
                                         "onTap": {
                                           "innertubeCommand": {
                                             "browseEndpoint": {
-                                              "canonicalBaseUrl": "/@SomeBlockedChannel"
+                                              "canonicalBaseUrl": "/@NonWhitelistedChannel1"
                                             }
                                           }
                                         }
@@ -91,7 +91,7 @@
                   "contentId": "whitelisted-video-2",
                   "metadata": {
                     "lockupMetadataViewModel": {
-                      "title": { "content": "Whitelisted Video Two" },
+                      "title": { "content": "Whitelisted Channel 2 Video" },
                       "metadata": {
                         "contentMetadataViewModel": {
                           "metadataRows": [
@@ -99,13 +99,13 @@
                               "metadataParts": [
                                 {
                                   "text": {
-                                    "content": "detectiveRust999",
+                                    "content": "WhitelistedChannel2",
                                     "commandRuns": [
                                       {
                                         "onTap": {
                                           "innertubeCommand": {
                                             "browseEndpoint": {
-                                              "canonicalBaseUrl": "/@detectiveRust999"
+                                              "canonicalBaseUrl": "/@WhitelistedChannel2"
                                             }
                                           }
                                         }
@@ -128,10 +128,10 @@
             "richItemRenderer": {
               "content": {
                 "lockupViewModel": {
-                  "contentId": "blocked-video-2",
+                  "contentId": "non-whitelisted-video-2",
                   "metadata": {
                     "lockupMetadataViewModel": {
-                      "title": { "content": "Blocked Video Two" },
+                      "title": { "content": "Non-Whitelisted Channel 2 Video" },
                       "metadata": {
                         "contentMetadataViewModel": {
                           "metadataRows": [
@@ -139,13 +139,13 @@
                               "metadataParts": [
                                 {
                                   "text": {
-                                    "content": "AnotherBlockedChannel",
+                                    "content": "NonWhitelistedChannel2",
                                     "commandRuns": [
                                       {
                                         "onTap": {
                                           "innertubeCommand": {
                                             "browseEndpoint": {
-                                              "canonicalBaseUrl": "/@AnotherBlockedChannel"
+                                              "canonicalBaseUrl": "/@NonWhitelistedChannel2"
                                             }
                                           }
                                         }

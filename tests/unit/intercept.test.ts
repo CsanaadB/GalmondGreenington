@@ -42,29 +42,29 @@ describe('filterBrowseItems', () => {
         content: {
           lockupViewModel: {
             contentId: 'vid-1',
-            metadata: lockupMetadata('/@whitelistedChannel')
+            metadata: lockupMetadata('/@WhitelistedChannel1')
           }
         }
       }
     };
-    const blockedItem: BrowseItem = {
+    const nonWhitelistedItem: BrowseItem = {
       richItemRenderer: {
         content: {
           lockupViewModel: {
             contentId: 'vid-2',
-            metadata: lockupMetadata('/@blockedChannel')
+            metadata: lockupMetadata('/@NonWhitelistedChannel1')
           }
         }
       }
     };
-    const whitelist = new Set(['/@whitelistedChannel']);
-    const filtered = filterBrowseItems([whitelistedItem, blockedItem], whitelist);
+    const whitelist = new Set(['/@WhitelistedChannel1']);
+    const filtered = filterBrowseItems([whitelistedItem, nonWhitelistedItem], whitelist);
     expect(filtered).toEqual([whitelistedItem]);
   });
 
   it('passes through items without richItemRenderer', () => {
     const nonVideoItem: BrowseItem = {};
-    const whitelist = new Set(['/@someChannel']);
+    const whitelist = new Set(['/@NonWhitelistedChannel2']);
     const filtered = filterBrowseItems([nonVideoItem], whitelist);
     expect(filtered).toEqual([nonVideoItem]);
   });
@@ -76,26 +76,26 @@ describe('filterSearchItems', () => {
       videoRenderer: {
         videoId: 'vid-1',
         longBylineText: { runs: [{ navigationEndpoint: { commandMetadata: {
-          webCommandMetadata: { url: '/@whitelistedChannel' }
+          webCommandMetadata: { url: '/@WhitelistedChannel1' }
         } } }] }
       }
     };
-    const blockedItem: SearchItem = {
+    const nonWhitelistedItem: SearchItem = {
       videoRenderer: {
         videoId: 'vid-2',
         longBylineText: { runs: [{ navigationEndpoint: { commandMetadata: {
-          webCommandMetadata: { url: '/@blockedChannel' }
+          webCommandMetadata: { url: '/@NonWhitelistedChannel1' }
         } } }] }
       }
     };
-    const whitelist = new Set(['/@whitelistedChannel']);
-    const filtered = filterSearchItems([whitelistedItem, blockedItem], whitelist);
+    const whitelist = new Set(['/@WhitelistedChannel1']);
+    const filtered = filterSearchItems([whitelistedItem, nonWhitelistedItem], whitelist);
     expect(filtered).toEqual([whitelistedItem]);
   });
 
   it('passes through items without videoRenderer', () => {
     const nonVideoItem: SearchItem = {};
-    const whitelist = new Set(['/@someChannel']);
+    const whitelist = new Set(['/@NonWhitelistedChannel2']);
     const filtered = filterSearchItems([nonVideoItem], whitelist);
     expect(filtered).toEqual([nonVideoItem]);
   });
